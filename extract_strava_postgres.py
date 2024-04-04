@@ -6,10 +6,23 @@ import os
 # Load environment variables from .env file
 load_dotenv()
 
-# Access environment variables
-client_id = os.getenv('CLIENT_ID')
-client_secret = os.getenv('CLIENT_SECRET')
-refresh_token = os.getenv('REFRESH_TOKEN')
+# Access environment variables for the first athlete
+
+client_id_1 = os.getenv('CLIENT_ID')
+client_secret_1 = os.getenv('CLIENT_SECRET')
+refresh_token_1 = os.getenv('REFRESH_TOKEN')
+
+# Access environment variables for the second athlete
+client_id_2 = os.getenv('CLIENT_ID_2')
+client_secret_2 = os.getenv('CLIENT_SECRET_2')
+refresh_token_2 = os.getenv('REFRESH_TOKEN_2')
+
+# Access environment variables for db credentials
+user = os.getenv('POSTGRES_USER')
+password = os.getenv('POSTGRES_PASSWORD')
+host = os.getenv('POSTGRES_HOST')
+port = os.getenv('POSTGRES_PORT')
+database = os.getenv('POSTGRES_DB')
 
 def create_strava_database(db_credentials):
     connection = None
@@ -64,7 +77,8 @@ def create_athlete_table(db_credentials):
             profile_medium VARCHAR(255),
             profile VARCHAR(255),
             friend BOOLEAN,
-            follower BOOLEAN
+            follower BOOLEAN,
+            last_activity_date TIMESTAMP WITHOUT TIME ZONE  -- New column for tracking the last activity date
         );
         """
     )
@@ -88,13 +102,15 @@ def fetch_athlete_data(access_token):
     athlete_data = response.json()
     return athlete_data
 
-def insert_athlete_data(athlete_data, db_credentials):
+def insert_athlete_data(athlete_data, activities_data, db_credentials):
     connection = psycopg2.connect(**db_credentials)
     cursor = connection.cursor()
 
-    insert_query = """INSERT INTO athletes (id, username, resource_state, firstname, lastname, bio, city, state, country, sex, premium, summit, created_at, updated_at, badge_type_id, weight, profile_medium, profile, friend, follower) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (id) DO UPDATE SET username = EXCLUDED.username, resource_state = EXCLUDED.resource_state, firstname = EXCLUDED.firstname, lastname = EXCLUDED.lastname, bio = EXCLUDED.bio, city = EXCLUDED.city, state = EXCLUDED.state, country = EXCLUDED.country, sex = EXCLUDED.sex, premium = EXCLUDED.premium, summit = EXCLUDED.summit, created_at = EXCLUDED.created_at, updated_at = EXCLUDED.updated_at, badge_type_id = EXCLUDED.badge_type_id, weight = EXCLUDED.weight, profile_medium = EXCLUDED.profile_medium, profile = EXCLUDED.profile, friend = EXCLUDED.friend, follower = EXCLUDED.follower;"""
+    # Base insert query for athlete data without last_activity_date
+    insert_query_base = """INSERT INTO athletes (id, username, resource_state, firstname, lastname, bio, city, state, country, sex, premium, summit, created_at, updated_at, badge_type_id, weight, profile_medium, profile, friend, follower) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (id) DO UPDATE SET username = EXCLUDED.username, resource_state = EXCLUDED.resource_state, firstname = EXCLUDED.firstname, lastname = EXCLUDED.lastname, bio = EXCLUDED.bio, city = EXCLUDED.city, state = EXCLUDED.state, country = EXCLUDED.country, sex = EXCLUDED.sex, premium = EXCLUDED.premium, summit = EXCLUDED.summit, created_at = EXCLUDED.created_at, updated_at = EXCLUDED.updated_at, badge_type_id = EXCLUDED.badge_type_id, weight = EXCLUDED.weight, profile_medium = EXCLUDED.profile_medium, profile = EXCLUDED.profile, friend = EXCLUDED.friend, follower = EXCLUDED.follower"""
 
-    data = (
+    # Base data tuple without last_activity_date
+    data_base = (
         athlete_data.get('id'),
         athlete_data.get('username'),
         athlete_data.get('resource_state'),
@@ -117,10 +133,21 @@ def insert_athlete_data(athlete_data, db_credentials):
         athlete_data.get('follower'),
     )
 
+    if activities_data:
+        # If there are new activities, include last_activity_date in the insert query
+        most_recent_activity_date = activities_data[0]['start_date']
+        insert_query = insert_query_base + ", last_activity_date = %s"
+        data = data_base + (most_recent_activity_date,)
+    else:
+        # If there are no new activities, do not update last_activity_date
+        insert_query = insert_query_base
+        data = data_base
+
     cursor.execute(insert_query, data)
     connection.commit()
     cursor.close()
     connection.close()
+
 
 def create_activities_table(db_credentials):
     command = (
@@ -207,19 +234,31 @@ def get_access_token(client_id, client_secret, refresh_token):
     access_token = response.json()['access_token']
     return access_token
 
-def fetch_strava_activities(access_token, start_date=None):
+def fetch_strava_activities(access_token, athlete_id, db_credentials):
+    # First, get the last_activity_date for this athlete from the database
+    connection = psycopg2.connect(**db_credentials)
+    cursor = connection.cursor()
+
+    # Query to get the last_activity_date for the given athlete_id
+    cursor.execute("SELECT last_activity_date FROM athletes WHERE id = %s", (athlete_id,))
+    result = cursor.fetchone()
+    last_activity_date = result[0] if result else None
+
+    cursor.close()
+    connection.close()
+
     activities_url = "https://www.strava.com/api/v3/athlete/activities"
-    header = {'Authorization': 'Bearer ' + access_token}
-    
+    headers = {'Authorization': f'Bearer {access_token}'}
     params = {'per_page': 200, 'page': 1}
     
-    # Convert start_date to Unix timestamp if it's not None
-    if start_date:
-        start_date_unix = int(start_date.timestamp())
+    # If there is a last_activity_date, set the 'after' parameter to fetch activities after this date
+    if last_activity_date:
+        start_date_unix = int(last_activity_date.timestamp())
         params['after'] = start_date_unix
 
-    activities_response = requests.get(activities_url, headers=header, params=params).json()
+    activities_response = requests.get(activities_url, headers=headers, params=params).json()
     return activities_response
+
 
 def get_latest_activity_date(db_credentials):
     """
@@ -311,27 +350,7 @@ def insert_into_database(activities_data, db_credentials):
     cursor.close()
     connection.close()
 
-    
-
-if __name__ == "__main__":
-    client_id = client_id
-    client_secret = client_secret
-    refresh_token = refresh_token
-    db_credentials = {
-        'user': 'postgres',
-        'password': 'postgres',
-        'host': 'localhost',
-        'port': '5433',
-        'database': 'strava'
-    }
-    
-    # Create the 'strava' database if it doesn't exist
-    create_strava_database(db_credentials)
-
-    # Create the tables if they don't exist
-    create_activities_table(db_credentials)
-    create_athlete_table(db_credentials)  # Ensure this function is defined and creates the athletes table
-
+def process_athlete_data(client_id, client_secret, refresh_token, db_credentials):
     # Get the access token
     access_token = get_access_token(client_id, client_secret, refresh_token)
 
@@ -339,9 +358,28 @@ if __name__ == "__main__":
     latest_activity_date = get_latest_activity_date(db_credentials)
 
     # Fetch the athlete and activities data
-    athlete_data = fetch_athlete_data(access_token)  # Ensure this function is defined and fetches the athlete data
-    activities_data = fetch_strava_activities(access_token, latest_activity_date)
-
+    athlete_data = fetch_athlete_data(access_token)
+    activities_data = fetch_strava_activities(access_token, athlete_data['id'], db_credentials)
     # Insert the data into the database
-    insert_athlete_data(athlete_data, db_credentials)  # Ensure this function is defined and inserts athlete data
-    insert_into_database(activities_data, db_credentials)  # Ensure this function is defined and inserts activities data
+    insert_athlete_data(athlete_data, activities_data, db_credentials)
+    insert_into_database(activities_data, db_credentials)
+
+if __name__ == "__main__":
+    db_credentials = {
+        'user': user,
+        'password': password,
+        'host': host,
+        'port': port,
+        'database': database
+    }
+    
+    # Create the 'strava' database and tables if they don't exist
+    create_strava_database(db_credentials)
+    create_activities_table(db_credentials)
+    create_athlete_table(db_credentials)
+
+    # Process data for the first athlete
+    process_athlete_data(client_id_1, client_secret_1, refresh_token_1, db_credentials)
+
+    # Process data for the second athlete
+    process_athlete_data(client_id_2, client_secret_2, refresh_token_2, db_credentials)
