@@ -60,6 +60,7 @@ http://www.strava.com/oauth/authorize?client_id=[YOUR_CLIENT_ID]&response_type=c
 
 http://localhost/exchange_token?state=&code=6402d3cd2e51d4aae47fc6b0287cdbf4f8dbb878&scope=read,read_all
 
+CDC AIRBYTE Setup
 ALTER USER postgres REPLICATION;
 
 # launch interactive bash terminal in the container
@@ -90,3 +91,11 @@ ALTER TABLE athletes REPLICA IDENTITY DEFAULT;
 
 CREATE PUBLICATION airbyte_publication FOR TABLE activities, athletes ;
 
+.gitignore file was created with the following contents:
+``` 
+target/
+logs/
+.user.yml
+profiles.yml
+.env
+```

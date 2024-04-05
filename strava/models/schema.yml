@@ -1,0 +1,20 @@
+ models: 
+  - name: athletes
+    description: Table with athletes context data
+    columns:
+      - name: athlete_id
+        tests:
+          - unique
+          - not_null
+          # check that athlete_id is referenced from id in source table
+          - relationships:
+              to: source('strava', 'athletes') 
+              field: id
+      - name: sex
+        tests:
+          - accepted_values:
+              values: ['F', 'M', 'NB', NULL]
+  - name: activities
+    description: Record of athletes' activities
+
+
