@@ -5,7 +5,7 @@ SELECT
 , location_state
 , location_country
 FROM {{ ref('activities') }} 
-WHERE location_city IS NOT NULL AND location_state IS NOT NULL AND location_country IS NOT NULL
+WHERE location_city IS NOT NULL OR location_state IS NOT NULL OR location_country IS NOT NULL
 
 UNION
 
@@ -14,7 +14,7 @@ SELECT
 , state
 , country
 FROM {{ ref('athletes') }} 
-WHERE city IS NOT NULL AND state IS NOT NULL AND country IS NOT NULL
+WHERE city IS NOT NULL OR state IS NOT NULL OR country IS NOT NULL
 )
 
 SELECT

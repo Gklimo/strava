@@ -8,9 +8,9 @@ SELECT
 , dim_location.location_key AS location_id
 
 FROM {{ ref('activities') }} activities
-LEFT JOIN {{ ref('dim_location') }} dim_location ON activities.location_city = dim_location.city
-    AND activities.location_state = dim_location.state
-    AND activities.location_country = dim_location.country
+LEFT JOIN {{ ref('dim_location') }} dim_location ON activities.location_country = dim_location.country
+    AND COALESCE(activities.location_state, '') = COALESCE(dim_location.state, '')
+    AND COALESCE(activities.location_country, '') = COALESCE(dim_location.country, '')
 LEFT JOIN {{ ref('dim_athlete') }} dim_athlete
     ON activities.athlete_id = dim_athlete.athlete_id
     AND activities.start_date::DATE BETWEEN dim_athlete.valid_from_date AND COALESCE(dim_athlete.valid_to_date, CURRENT_DATE)
