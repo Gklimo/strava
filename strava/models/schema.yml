@@ -16,5 +16,20 @@
               values: ['F', 'M', 'NB', NULL]
   - name: activities
     description: Record of athletes' activities
-
-
+    columns:
+      - name: activity_id
+        tests:
+          - unique
+          - not_null
+      - name: upload_id
+        tests:
+          - unique
+          - not_null
+      - name: external_id
+        tests:
+          - unique
+          - not_null
+      - name: activity_type
+        tests:
+          - accepted_values:
+              values: ['run', 'ride', 'swim', 'workout', 'hike', 'walk', 'weighttraining', 'yoga', 'virtualride']
