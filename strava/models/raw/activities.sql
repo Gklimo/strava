@@ -43,7 +43,7 @@ SELECT
 , achievement_count::INTEGER AS achievement_count
 , average_heartrate::FLOAT AS average_heartrate
 , total_photo_count::INTEGER AS total_photo_count
-, total_elevation_gain::INTEGER AS total_elevation_gain
+, total_elevation_gain::FLOAT AS total_elevation_gain
 , to_timestamp(_airbyte_extracted_at) AS extracted_at
 
 FROM {{ source('strava', 'activities') }}
