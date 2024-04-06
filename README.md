@@ -113,3 +113,6 @@ dagster project scaffold --name analytics
 rename top analytics folder to dagster
 
 pip install -e ".[dev]"
+
+Scheduling
+https://crontab.guru/#0_*_*_*_*
