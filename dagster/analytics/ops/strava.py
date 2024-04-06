@@ -20,7 +20,7 @@ class StravaConfig(Config):
     client_id_2: int = EnvVar("client_id_2")
     client_secret_2: str = EnvVar("client_secret_2")
     refresh_token_2: str = EnvVar("refresh_token_2")
-    date: str
+    # date: str
 
 
 @op
@@ -104,7 +104,7 @@ def create_athlete_table( config: StravaConfig):
             connection.close()
 
 @op
-def fetch_athlete_data(access_token):
+def extract_athlete_data(access_token):
     athlete_url = "https://www.strava.com/api/v3/athlete"
     headers = {'Authorization': f'Bearer {access_token}'}
     response = requests.get(athlete_url, headers=headers)
@@ -112,7 +112,7 @@ def fetch_athlete_data(access_token):
     return athlete_data
 
 @op
-def insert_athlete_data( athlete_data, activities_data, config: StravaConfig):
+def load_athlete_data( athlete_data, activities_data, config: StravaConfig):
     connection = psycopg2.connect(user=config.postgres_user,
                                       password=config.postgres_password,
                                       host=config.postgres_host,
@@ -242,12 +242,25 @@ def create_activities_table( config: StravaConfig):
 
 
 @op
-def get_access_token( client_id, client_secret, refresh_token):
+def get_access_token( config: StravaConfig):
     auth_url = "https://www.strava.com/oauth/token"
     payload = {
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'refresh_token': refresh_token,
+        'client_id': config.client_id,
+        'client_secret': config.client_secret,
+        'refresh_token': config.refresh_token,
+        'grant_type': "refresh_token",
+        'f': 'json'
+    }
+    response = requests.post(auth_url, data=payload, verify=False)
+    access_token = response.json()['access_token']
+    return access_token
+@op
+def get_access_token_2( config: StravaConfig):
+    auth_url = "https://www.strava.com/oauth/token"
+    payload = {
+        'client_id': config.client_id_2,
+        'client_secret': config.client_secret_2,
+        'refresh_token': config.refresh_token_2,
         'grant_type': "refresh_token",
         'f': 'json'
     }
@@ -256,8 +269,10 @@ def get_access_token( client_id, client_secret, refresh_token):
     return access_token
 
 @op
-def fetch_strava_activities( access_token, athlete_id, config: StravaConfig):
+def extract_strava_activities( access_token, athlete_data, config: StravaConfig):
     # First, get the last_activity_date for this athlete from the database
+    athlete_id = athlete_data['id']
+
     connection = psycopg2.connect(user=config.postgres_user,
                                       password=config.postgres_password,
                                       host=config.postgres_host,
@@ -274,9 +289,15 @@ def fetch_strava_activities( access_token, athlete_id, config: StravaConfig):
     connection.close()
 
     activities_url = "https://www.strava.com/api/v3/athlete/activities"
-    # dt = int(datetime.datetime.strptime(config.date, ))
+    # partition_date = "2023-01-01"
+    # date = int(datetime.datetime.strptime(config.date, "%Y-%m-%d").timestamp())
     headers = {'Authorization': f'Bearer {access_token}'}
-    params = {'per_page': 200, 'page': 1}
+    # get data up to today: dt = current date
+    params = {
+        'per_page': 200, 
+        'page': 1,
+        # 'before': date
+        }
     
     # If there is a last_activity_date, set the 'after' parameter to fetch activities after this date
     if last_activity_date:
@@ -309,7 +330,7 @@ def get_latest_activity_date( config: StravaConfig):
 
 
 @op
-def insert_into_database( activities_data, config: StravaConfig):
+def load_into_database( activities_data, config: StravaConfig):
     # Database connection
     connection = psycopg2.connect(user=config.postgres_user,
                                       password=config.postgres_password,
@@ -387,57 +408,57 @@ def insert_into_database( activities_data, config: StravaConfig):
     cursor.close()
     connection.close()
 
-@op
-def process_athlete_data(context: OpExecutionContext, config: StravaConfig):
-    context.log.info('Connecting to strava database')
-    context.log.info('Creating strava database if it does not exist')
-    create_strava_database()
-    context.log.info('Creating activities table')
-    create_activities_table()
-    context.log.info('Creating athlete table')
-    create_athlete_table()
+# @op
+# def process_athlete_data(context: OpExecutionContext, config: StravaConfig):
+#     context.log.info('Connecting to strava database')
+#     context.log.info('Creating strava database if it does not exist')
+#     create_strava_database()
+#     context.log.info('Creating activities table')
+#     create_activities_table()
+#     context.log.info('Creating athlete table')
+#     create_athlete_table()
 
-# def process_athlete_data(client_id: int, client_secret: str, refresh_token: str):
-    # Get the access token for athlete 1
-    context.log.info('Getting access token for athlete 1')
-    access_token = get_access_token(config.client_id, config.client_secret , config.refresh_token)
-    # Get the date of the latest activity in the database
-    context.log.info('Getting last activity date for athlete 1')
-    latest_activity_date = get_latest_activity_date()
+# # def process_athlete_data(client_id: int, client_secret: str, refresh_token: str):
+#     # Get the access token for athlete 1
+#     context.log.info('Getting access token for athlete 1')
+#     access_token = get_access_token(config.client_id, config.client_secret , config.refresh_token)
+#     # Get the date of the latest activity in the database
+#     context.log.info('Getting last activity date for athlete 1')
+#     latest_activity_date = get_latest_activity_date()
 
-    # Fetch the athlete and activities data
-    context.log.info('Extracting athlete data for athlete 1')
-    athlete_data = fetch_athlete_data(access_token)
-    context.log.info('Extracting activity data for athlete 1')
-    activities_data = fetch_strava_activities(access_token, athlete_data['id'])
-    # Insert the data into the database
-    context.log.info('Inserting athelte data for athlete 1')
-    insert_athlete_data(athlete_data, activities_data)
-    context.log.info('Inserting activity data for athlete 1')
-    insert_into_database(activities_data)
+#     # Fetch the athlete and activities data
+#     context.log.info('Extracting athlete data for athlete 1')
+    # athlete_data = extract_athlete_data(access_token)
+#     context.log.info('Extracting activity data for athlete 1')
+    # activities_data = extract_strava_activities(access_token, athlete_data)
+#     # Insert the data into the database
+#     context.log.info('Inserting athelte data for athlete 1')
+#     load_athlete_data(athlete_data, activities_data)
+#     context.log.info('Inserting activity data for athlete 1')
+#     load_into_database(activities_data)
 
-    # Get the access token for athlete 2
-    context.log.info('Getting access token for athlete 2')
-    access_token = get_access_token(config.client_id_2, config.client_secret_2 , config.refresh_token_2)
+#     # Get the access token for athlete 2
+#     context.log.info('Getting access token for athlete 2')
+#     access_token = get_access_token_2(config.client_id_2, config.client_secret_2 , config.refresh_token_2)
 
-    # Get the date of the latest activity in the database
-    context.log.info('Getting last activity date for athlete 2')
-    latest_activity_date = get_latest_activity_date()
+#     # Get the date of the latest activity in the database
+#     context.log.info('Getting last activity date for athlete 2')
+#     # latest_activity_date = get_latest_activity_date()
 
-    # Fetch the athlete and activities data
-    context.log.info('Extracting athlete data for athlete 2')
-    athlete_data_2 = fetch_athlete_data(access_token)
-    context.log.info('Extracting activity data for athlete 2')
-    activities_data_2 = fetch_strava_activities(access_token, athlete_data_2['id'])
-    # Insert the data into the database
-    context.log.info('Inserting athelte data for athlete 2')
-    insert_athlete_data(athlete_data_2, activities_data_2)
-    context.log.info('Inserting activity data for athlete 2')
-    insert_into_database(activities_data_2)
-    print(athlete_data,athlete_data_2)
-    return athlete_data
+#     # Fetch the athlete and activities data
+#     context.log.info('Extracting athlete data for athlete 2')
+#     athlete_data_2 = extract_athlete_data(access_token)
+#     context.log.info('Extracting activity data for athlete 2')
+#     activities_data_2 = extract_strava_activities(access_token, athlete_data_2)
+#     # Insert the data into the database
+#     context.log.info('Inserting athelte data for athlete 2')
+#     load_athlete_data(athlete_data_2, activities_data_2)
+#     context.log.info('Inserting activity data for athlete 2')
+#     load_into_database(activities_data_2)
+#     # print(athlete_data,athlete_data_2)
+#     return athlete_data
     
 @op
-def print_op(athlete_data):
-    """Prints output of process_athlete_data"""
-    print(athlete_data)
+def print_op(athlete_data, activities_data):
+    """Prints output athlete and activities data"""
+    print(athlete_data, activities_data)
