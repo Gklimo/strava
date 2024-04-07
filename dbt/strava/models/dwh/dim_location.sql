@@ -1,4 +1,3 @@
-{{ config(materialized='table') }}
 WITH locations AS (
 SELECT
   DISTINCT location_city

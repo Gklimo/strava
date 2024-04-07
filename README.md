@@ -60,6 +60,8 @@ http://www.strava.com/oauth/authorize?client_id=[YOUR_CLIENT_ID]&response_type=c
 
 http://localhost/exchange_token?state=&code=6402d3cd2e51d4aae47fc6b0287cdbf4f8dbb878&scope=read,read_all
 
+Install airbyte version 0.50.44 by downloading a zip from https://github.com/airbytehq/airbyte/releases?page=3
+
 CDC AIRBYTE Setup
 ALTER USER postgres REPLICATION;
 
@@ -99,3 +101,18 @@ logs/
 profiles.yml
 .env
 ```
+
+conda create -n dagster python=3.11
+conda activate dagster
+
+pip install dagster==1.6.8
+
+cd unsolved
+dagster project scaffold --name analytics
+
+rename top analytics folder to dagster
+
+pip install -e ".[dev]"
+
+Scheduling
+https://crontab.guru/#0_*_*_*_*
