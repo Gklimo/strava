@@ -1,11 +1,13 @@
 import psycopg2
 import requests
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import os
-from dagster import op, EnvVar, Config, OpExecutionContext
-import os
+from dagster import EnvVar, Config, OpExecutionContext, asset, DailyPartitionsDefinition, FreshnessPolicy, AutoMaterializePolicy
+# import os
 import datetime
 from analytics.resources import PostgresqlDatabaseResource
+
+strava_daily_partition = DailyPartitionsDefinition(start_date=datetime.datetime(2024, 1, 1))
 
 class StravaConfig(Config):
     client_id: int = EnvVar("client_id")
@@ -14,10 +16,12 @@ class StravaConfig(Config):
     client_id_2: int = EnvVar("client_id_2")
     client_secret_2: str = EnvVar("client_secret_2")
     refresh_token_2: str = EnvVar("refresh_token_2")
-    date: str
 
-@op
-def create_strava_database( context: OpExecutionContext, postgres_conn: PostgresqlDatabaseResource ):
+@asset(
+    partitions_def=strava_daily_partition, 
+    auto_materialize_policy=AutoMaterializePolicy.eager()
+)
+def strava_database( context: OpExecutionContext, postgres_conn: PostgresqlDatabaseResource ):
     context.log.info('Creating strava database if it does not exist')
     connection = None
     try:
@@ -51,8 +55,13 @@ def create_strava_database( context: OpExecutionContext, postgres_conn: Postgres
             cursor.close()
             connection.close()
 
-@op
-def create_athlete_table( context: OpExecutionContext, postgres_conn: PostgresqlDatabaseResource ):
+@asset(
+    partitions_def=strava_daily_partition,
+    deps=[strava_database],
+    auto_materialize_policy=AutoMaterializePolicy.eager()
+
+)
+def athlete_table( context: OpExecutionContext, postgres_conn: PostgresqlDatabaseResource ):
     context.log.info('Creating athlete table')
     command = (
         """
@@ -98,8 +107,13 @@ def create_athlete_table( context: OpExecutionContext, postgres_conn: Postgresql
         if connection is not None:
             connection.close()
 
-@op
-def extract_athlete_data( context: OpExecutionContext, access_token ):
+@asset(
+    partitions_def=strava_daily_partition, 
+    deps=[athlete_table],
+    auto_materialize_policy=AutoMaterializePolicy.eager()
+
+)
+def athlete_data( context: OpExecutionContext, access_token ):
     context.log.info('Extracting athlete data')
     athlete_url = "https://www.strava.com/api/v3/athlete"
     headers = {'Authorization': f'Bearer {access_token}'}
@@ -107,8 +121,12 @@ def extract_athlete_data( context: OpExecutionContext, access_token ):
     athlete_data = response.json()
     return athlete_data
 
-@op
-def load_athlete_data(  context: OpExecutionContext, athlete_data, activities_data, postgres_conn: PostgresqlDatabaseResource ):
+@asset(
+    partitions_def=strava_daily_partition, 
+    auto_materialize_policy=AutoMaterializePolicy.eager()
+
+)
+def loaded_athlete_data( context: OpExecutionContext, athlete_data, strava_activities, postgres_conn: PostgresqlDatabaseResource ):
     context.log.info('Loading athlete data')
     connection = psycopg2.connect(  user=postgres_conn.postgres_user,
                                       password=postgres_conn.postgres_password,
@@ -144,9 +162,9 @@ def load_athlete_data(  context: OpExecutionContext, athlete_data, activities_da
         athlete_data.get('follower'),
     )
 
-    if activities_data:
+    if strava_activities:
         # If there are new activities, include last_activity_date in the insert query
-        most_recent_activity_date = activities_data[0]['start_date']
+        most_recent_activity_date = strava_activities[0]['start_date']
         insert_query = insert_query_base + ", last_activity_date = %s"
         data = data_base + (most_recent_activity_date,)
     else:
@@ -160,8 +178,13 @@ def load_athlete_data(  context: OpExecutionContext, athlete_data, activities_da
     connection.close()
 
 
-@op
-def create_activities_table( context: OpExecutionContext, postgres_conn: PostgresqlDatabaseResource, ):
+@asset(
+    partitions_def=strava_daily_partition, 
+    deps=[strava_database],
+    auto_materialize_policy=AutoMaterializePolicy.eager()
+
+)
+def activities_table( context: OpExecutionContext, postgres_conn: PostgresqlDatabaseResource, ):
     context.log.info('Creating activities table')
     command = (
         """
@@ -239,8 +262,12 @@ def create_activities_table( context: OpExecutionContext, postgres_conn: Postgre
             connection.close()
 
 
-@op
-def get_access_token( context: OpExecutionContext, config: StravaConfig ):
+@asset(
+    partitions_def=strava_daily_partition,
+    auto_materialize_policy=AutoMaterializePolicy.eager()
+
+)
+def access_token( context: OpExecutionContext, config: StravaConfig ):
     context.log.info('Getting access token for athlete 1')
 
     auth_url = "https://www.strava.com/oauth/token"
@@ -254,24 +281,14 @@ def get_access_token( context: OpExecutionContext, config: StravaConfig ):
     response = requests.post(auth_url, data=payload, verify=False)
     access_token = response.json()['access_token']
     return access_token
-@op
-def get_access_token_2( context: OpExecutionContext, config: StravaConfig ):
-    context.log.info('Getting access token for athlete 2')
 
-    auth_url = "https://www.strava.com/oauth/token"
-    payload = {
-        'client_id': config.client_id_2,
-        'client_secret': config.client_secret_2,
-        'refresh_token': config.refresh_token_2,
-        'grant_type': "refresh_token",
-        'f': 'json'
-    }
-    response = requests.post(auth_url, data=payload, verify=False)
-    access_token = response.json()['access_token']
-    return access_token
+@asset(
+    partitions_def=strava_daily_partition, 
+    deps=[activities_table],
+    auto_materialize_policy=AutoMaterializePolicy.eager()
 
-@op
-def extract_strava_activities( context: OpExecutionContext, access_token, athlete_data, postgres_conn: PostgresqlDatabaseResource, config: StravaConfig ):
+)
+def strava_activities( context: OpExecutionContext, access_token, athlete_data, postgres_conn: PostgresqlDatabaseResource, config: StravaConfig ):
     context.log.info('Extracting activity data')
 
     """
@@ -289,7 +306,7 @@ def extract_strava_activities( context: OpExecutionContext, access_token, athlet
     """
 
     athlete_id = athlete_data['id']
-    partition_date = datetime.datetime.strptime(config.date, "%Y-%m-%d")
+    partition_date = datetime.datetime.strptime(context.partition_key, "%Y-%m-%d")
     # partition_date = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
     connection = psycopg2.connect(user=postgres_conn.postgres_user,
                                       password=postgres_conn.postgres_password,
@@ -328,29 +345,35 @@ def extract_strava_activities( context: OpExecutionContext, access_token, athlet
     return activities_response
 
 
-@op
-def get_latest_activity_date(postgres_conn: PostgresqlDatabaseResource):
-    """
-      Incrementally query the database for the most recent start_date of stored activities
-    """ 
-    connection = psycopg2.connect(user=postgres_conn.postgres_user,
-                                      password=postgres_conn.postgres_password,
-                                      host=postgres_conn.postgres_host,
-                                      port=postgres_conn.postgres_port, 
-                                      database=postgres_conn.postgres_db)
-    cursor = connection.cursor()
+# @asset(
+#     partitions_def=strava_daily_partition, 
+# )
+# def latest_date(postgres_conn: PostgresqlDatabaseResource):
+#     """
+#       Incrementally query the database for the most recent start_date of stored activities
+#     """ 
+#     connection = psycopg2.connect(user=postgres_conn.postgres_user,
+#                                       password=postgres_conn.postgres_password,
+#                                       host=postgres_conn.postgres_host,
+#                                       port=postgres_conn.postgres_port, 
+#                                       database=postgres_conn.postgres_db)
+#     cursor = connection.cursor()
 
-    cursor.execute("SELECT MAX(start_date) FROM activities")
-    latest_start_date = cursor.fetchone()[0]
+#     cursor.execute("SELECT MAX(start_date) FROM activities")
+#     latest_start_date = cursor.fetchone()[0]
 
-    cursor.close()
-    connection.close()
+#     cursor.close()
+#     connection.close()
 
-    return latest_start_date
+#     return latest_start_date
 
 
-@op
-def load_into_database(context: OpExecutionContext, activities_data, postgres_conn: PostgresqlDatabaseResource ):
+@asset(
+    partitions_def=strava_daily_partition, 
+    freshness_policy=FreshnessPolicy(cron_schedule='0 0 * * *', maximum_lag_minutes=1),
+    auto_materialize_policy=AutoMaterializePolicy.eager()
+)
+def uploaded_activity_data(context: OpExecutionContext, strava_activities, postgres_conn: PostgresqlDatabaseResource ):
     context.log.info('Loading activity data')
     # Database connection
     connection = psycopg2.connect(user=postgres_conn.postgres_user,
@@ -364,7 +387,7 @@ def load_into_database(context: OpExecutionContext, activities_data, postgres_co
     insert_query = """INSERT INTO activities (id, resource_state, athlete_id, name, distance, moving_time, elapsed_time, total_elevation_gain, type, sport_type, workout_type, start_date, start_date_local, timezone, utc_offset, location_city, location_state, location_country, achievement_count, kudos_count, comment_count, athlete_count, photo_count, map_id, trainer, commute, manual, private, visibility, flagged, gear_id, start_latlng, end_latlng, average_speed, max_speed, average_cadence, average_temp, has_heartrate, average_heartrate, max_heartrate, heartrate_opt_out, display_hide_heartrate_option, elev_high, elev_low, upload_id, upload_id_str, external_id, from_accepted_tag, pr_count, total_photo_count, has_kudoed) 
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (id) DO NOTHING;"""
 
-    for activity in activities_data:
+    for activity in strava_activities:
         # Extracting athlete id separately
         athlete_id = activity['athlete']['id'] if 'athlete' in activity and 'id' in activity['athlete'] else None
         # Prepare data for insertion
@@ -428,9 +451,3 @@ def load_into_database(context: OpExecutionContext, activities_data, postgres_co
     connection.commit()
     cursor.close()
     connection.close()
-
-    
-@op
-def print_op(athlete_data, activities_data):
-    """Prints output athlete and activities data"""
-    print(athlete_data, activities_data)

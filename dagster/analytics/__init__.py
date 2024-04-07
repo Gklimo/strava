@@ -1,14 +1,13 @@
-from dagster import Definitions, EnvVar
+from dagster import Definitions, EnvVar, load_assets_from_package_module
 from analytics.jobs import run_strava_etl
-# , run_strava_etl_2
 from analytics.resources import PostgresqlDatabaseResource
 from analytics.schedules import strava_etl_schedule
-# , strava_etl_schedule_2
+from analytics.assets import strava
 
+all_strava_assets = load_assets_from_package_module(strava, group_name='strava' )
 defs = Definitions(
-    jobs=[run_strava_etl,
-        #   run_strava_etl_2
-          ],
+    assets=[*all_strava_assets],
+    jobs=[run_strava_etl],
     schedules=[strava_etl_schedule,
                 # strava_etl_schedule_2
                 ], 
