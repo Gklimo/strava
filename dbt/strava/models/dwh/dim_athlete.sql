@@ -1,3 +1,13 @@
+{{
+  config(
+      materialized="table",
+      meta={
+        "dagster": {
+          "group" : "dbt_dwh"
+        }
+      }
+  )
+}}
 WITH athlete_data AS (
     SELECT
       a.athlete_id

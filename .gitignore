@@ -2,6 +2,5 @@
 target/
 logs/
 .user.yml
-profiles.yml
 __pycache__
 .pytest_cache

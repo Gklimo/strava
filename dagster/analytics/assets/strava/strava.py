@@ -19,6 +19,7 @@ class StravaConfig(Config):
 
 @asset(
     partitions_def=strava_daily_partition, 
+    # materialize an asset partition if anything upstream was refreshed
     auto_materialize_policy=AutoMaterializePolicy.eager()
 )
 def strava_database( context: OpExecutionContext, postgres_conn: PostgresqlDatabaseResource ):
@@ -113,7 +114,7 @@ def athlete_table( context: OpExecutionContext, postgres_conn: PostgresqlDatabas
     auto_materialize_policy=AutoMaterializePolicy.eager()
 
 )
-def athlete_data( context: OpExecutionContext, access_token ):
+def strava_athletes( context: OpExecutionContext, access_token ):
     context.log.info('Extracting athlete data')
     athlete_url = "https://www.strava.com/api/v3/athlete"
     headers = {'Authorization': f'Bearer {access_token}'}
@@ -126,7 +127,7 @@ def athlete_data( context: OpExecutionContext, access_token ):
     auto_materialize_policy=AutoMaterializePolicy.eager()
 
 )
-def loaded_athlete_data( context: OpExecutionContext, athlete_data, strava_activities, postgres_conn: PostgresqlDatabaseResource ):
+def athletes( context: OpExecutionContext, strava_athletes, strava_activities, postgres_conn: PostgresqlDatabaseResource ):
     context.log.info('Loading athlete data')
     connection = psycopg2.connect(  user=postgres_conn.postgres_user,
                                       password=postgres_conn.postgres_password,
@@ -140,26 +141,26 @@ def loaded_athlete_data( context: OpExecutionContext, athlete_data, strava_activ
 
     # Base data tuple without last_activity_date
     data_base = (
-        athlete_data.get('id'),
-        athlete_data.get('username'),
-        athlete_data.get('resource_state'),
-        athlete_data.get('firstname'),
-        athlete_data.get('lastname'),
-        athlete_data.get('bio'),
-        athlete_data.get('city'),
-        athlete_data.get('state'),
-        athlete_data.get('country'),
-        athlete_data.get('sex'),
-        athlete_data.get('premium'),
-        athlete_data.get('summit'),
-        athlete_data.get('created_at'),
-        athlete_data.get('updated_at'),
-        athlete_data.get('badge_type_id'),
-        athlete_data.get('weight'),
-        athlete_data.get('profile_medium'),
-        athlete_data.get('profile'),
-        athlete_data.get('friend'),
-        athlete_data.get('follower'),
+        strava_athletes.get('id'),
+        strava_athletes.get('username'),
+        strava_athletes.get('resource_state'),
+        strava_athletes.get('firstname'),
+        strava_athletes.get('lastname'),
+        strava_athletes.get('bio'),
+        strava_athletes.get('city'),
+        strava_athletes.get('state'),
+        strava_athletes.get('country'),
+        strava_athletes.get('sex'),
+        strava_athletes.get('premium'),
+        strava_athletes.get('summit'),
+        strava_athletes.get('created_at'),
+        strava_athletes.get('updated_at'),
+        strava_athletes.get('badge_type_id'),
+        strava_athletes.get('weight'),
+        strava_athletes.get('profile_medium'),
+        strava_athletes.get('profile'),
+        strava_athletes.get('friend'),
+        strava_athletes.get('follower'),
     )
 
     if strava_activities:
@@ -288,7 +289,7 @@ def access_token( context: OpExecutionContext, config: StravaConfig ):
     auto_materialize_policy=AutoMaterializePolicy.eager()
 
 )
-def strava_activities( context: OpExecutionContext, access_token, athlete_data, postgres_conn: PostgresqlDatabaseResource, config: StravaConfig ):
+def strava_activities( context: OpExecutionContext, access_token, strava_athletes, postgres_conn: PostgresqlDatabaseResource, config: StravaConfig ):
     context.log.info('Extracting activity data')
 
     """
@@ -305,7 +306,7 @@ def strava_activities( context: OpExecutionContext, access_token, athlete_data, 
     - list: A list of activity data in JSON format returned from the Strava API for the specified athlete, filtered to include only activities after the athlete's last activity date in the database.
     """
 
-    athlete_id = athlete_data['id']
+    athlete_id = strava_athletes['id']
     partition_date = datetime.datetime.strptime(context.partition_key, "%Y-%m-%d")
     # partition_date = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
     connection = psycopg2.connect(user=postgres_conn.postgres_user,
@@ -373,7 +374,7 @@ def strava_activities( context: OpExecutionContext, access_token, athlete_data, 
     freshness_policy=FreshnessPolicy(cron_schedule='0 0 * * *', maximum_lag_minutes=1),
     auto_materialize_policy=AutoMaterializePolicy.eager()
 )
-def uploaded_activity_data(context: OpExecutionContext, strava_activities, postgres_conn: PostgresqlDatabaseResource ):
+def activities(context: OpExecutionContext, strava_activities, postgres_conn: PostgresqlDatabaseResource ):
     context.log.info('Loading activity data')
     # Database connection
     connection = psycopg2.connect(user=postgres_conn.postgres_user,

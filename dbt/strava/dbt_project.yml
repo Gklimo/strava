@@ -35,6 +35,20 @@ models:
     raw:
       +materialized: table
       +schema: raw
+      +meta:
+        dagster:
+          group: dbt_raw
+          auto_materialize_policy:
+            type: eager
     dwh:
       +materialized: table
       +schema: dwh
+      +meta:
+        dagster:
+          group: dbt_dwh
+          auto_materialize_policy:
+            type: eager
+          freshness_policy:
+            maximum_lag_minutes: 5
+            # every 5 min
+            cron_schedule: "*/5 * * * *"

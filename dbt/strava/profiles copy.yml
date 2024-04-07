@@ -1,0 +1,13 @@
+strava:
+  outputs:
+    dev:
+      account: pq34668.eu-west-2.aws
+      database: strava
+      password: Drakosha1202!
+      role: accountadmin
+      schema: strava
+      threads: 12
+      type: snowflake
+      user: gklimo
+      warehouse: xsmall_wh
+  target: dev
