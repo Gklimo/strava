@@ -1,8 +1,8 @@
 from dagster import ConfigurableResource
 
 class PostgresqlDatabaseResource(ConfigurableResource):
-    host_name: str
-    database_name: str
-    user: str
-    password: str
-    port: str
+    postgres_host: str
+    postgres_db: str
+    postgres_user: str
+    postgres_password: str
+    postgres_port: str

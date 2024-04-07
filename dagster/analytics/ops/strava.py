@@ -5,35 +5,30 @@ import os
 from dagster import op, EnvVar, Config, OpExecutionContext
 import os
 import datetime
+from analytics.resources import PostgresqlDatabaseResource
+
+# TODO: fix partitions
 
 class StravaConfig(Config):
-    # TODO: use resources for postgres connection
-    # TODO: set up partitions
-    postgres_user: str = EnvVar("postgres_user")
-    postgres_password: str = EnvVar("postgres_password")
-    postgres_host: str = EnvVar("postgres_host")
-    postgres_port: int = EnvVar("postgres_port")
-    postgres_db: str = EnvVar("postgres_db")
     client_id: int = EnvVar("client_id")
     client_secret: str = EnvVar("client_secret")
     refresh_token: str = EnvVar("refresh_token")
     client_id_2: int = EnvVar("client_id_2")
     client_secret_2: str = EnvVar("client_secret_2")
     refresh_token_2: str = EnvVar("refresh_token_2")
-    # date: str
-
+    date: str
 
 @op
-def create_strava_database( config: StravaConfig):
+def create_strava_database(postgres_conn: PostgresqlDatabaseResource):
     connection = None
     try:
         # Connect to the database
         connection = psycopg2.connect(
-                                      user=config.postgres_user,
-                                      password=config.postgres_password,
-                                      host=config.postgres_host,
-                                      port=config.postgres_port, 
-                                      database=config.postgres_db)
+                                      user=postgres_conn.postgres_user,
+                                      password=postgres_conn.postgres_password,
+                                      host=postgres_conn.postgres_host,
+                                      port=postgres_conn.postgres_port, 
+                                      database=postgres_conn.postgres_db)
         # Connecting to the default 'postgres' database
         connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
         cursor = connection.cursor()
@@ -58,7 +53,7 @@ def create_strava_database( config: StravaConfig):
             connection.close()
 
 @op
-def create_athlete_table( config: StravaConfig):
+def create_athlete_table(postgres_conn: PostgresqlDatabaseResource):
     command = (
         """
         CREATE TABLE IF NOT EXISTS athletes (
@@ -88,11 +83,11 @@ def create_athlete_table( config: StravaConfig):
     )
     connection = None
     try:
-        connection = psycopg2.connect(user=config.postgres_user,
-                                      password=config.postgres_password,
-                                      host=config.postgres_host,
-                                      port=config.postgres_port, 
-                                      database=config.postgres_db)
+        connection = psycopg2.connect(user=postgres_conn.postgres_user,
+                                      password=postgres_conn.postgres_password,
+                                      host=postgres_conn.postgres_host,
+                                      port=postgres_conn.postgres_port, 
+                                      database=postgres_conn.postgres_db)
         cursor = connection.cursor()
         cursor.execute(command)
         cursor.close()
@@ -112,12 +107,12 @@ def extract_athlete_data(access_token):
     return athlete_data
 
 @op
-def load_athlete_data( athlete_data, activities_data, config: StravaConfig):
-    connection = psycopg2.connect(user=config.postgres_user,
-                                      password=config.postgres_password,
-                                      host=config.postgres_host,
-                                      port=config.postgres_port, 
-                                      database=config.postgres_db)
+def load_athlete_data( athlete_data, activities_data, postgres_conn: PostgresqlDatabaseResource):
+    connection = psycopg2.connect(  user=postgres_conn.postgres_user,
+                                      password=postgres_conn.postgres_password,
+                                      host=postgres_conn.postgres_host,
+                                      port=postgres_conn.postgres_port, 
+                                      database=postgres_conn.postgres_db)
     cursor = connection.cursor()
 
     # Base insert query for athlete data without last_activity_date
@@ -164,7 +159,7 @@ def load_athlete_data( athlete_data, activities_data, config: StravaConfig):
 
 
 @op
-def create_activities_table( config: StravaConfig):
+def create_activities_table( postgres_conn: PostgresqlDatabaseResource):
     command = (
         """
         CREATE TABLE IF NOT EXISTS activities (
@@ -225,11 +220,11 @@ def create_activities_table( config: StravaConfig):
 
     connection = None
     try:
-        connection = psycopg2.connect(user=config.postgres_user,
-                                      password=config.postgres_password,
-                                      host=config.postgres_host,
-                                      port=config.postgres_port, 
-                                      database=config.postgres_db)
+        connection = psycopg2.connect(user=postgres_conn.postgres_user,
+                                      password=postgres_conn.postgres_password,
+                                      host=postgres_conn.postgres_host,
+                                      port=postgres_conn.postgres_port, 
+                                      database=postgres_conn.postgres_db)
         cursor = connection.cursor()
         cursor.execute(command)
         cursor.close()
@@ -269,15 +264,29 @@ def get_access_token_2( config: StravaConfig):
     return access_token
 
 @op
-def extract_strava_activities( access_token, athlete_data, config: StravaConfig):
-    # First, get the last_activity_date for this athlete from the database
-    athlete_id = athlete_data['id']
+def extract_strava_activities( access_token, athlete_data, postgres_conn: PostgresqlDatabaseResource, config: StravaConfig):
+    """
+    Fetches Strava activities for a specified athlete that occurred after the athlete's last activity date stored in the database.
 
-    connection = psycopg2.connect(user=config.postgres_user,
-                                      password=config.postgres_password,
-                                      host=config.postgres_host,
-                                      port=config.postgres_port, 
-                                      database=config.postgres_db)
+    This operation incrementally extracts new activities for an individual athlete, ensuring only activities not previously fetched are retrieved. It uses the 'after' parameter in the Strava API request to filter activities by date, based on the last recorded activity date for the athlete in the database.
+
+    Parameters:
+    - access_token (str): The OAuth token used for authenticating with the Strava API.
+    - athlete_data (dict): A dictionary containing at least the 'id' of the athlete whose activities are to be fetched.
+    - config (StravaConfig): A configuration object containing database connection parameters and possibly other Strava-specific settings.
+
+    Returns:
+    - list: A list of activity data in JSON format returned from the Strava API for the specified athlete, filtered to include only activities after the athlete's last activity date in the database.
+    """
+
+    athlete_id = athlete_data['id']
+    partition_date = datetime.datetime.strptime(config.date, "%Y-%m-%d")
+    # partition_date = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d")
+    connection = psycopg2.connect(user=postgres_conn.postgres_user,
+                                      password=postgres_conn.postgres_password,
+                                      host=postgres_conn.postgres_host,
+                                      port=postgres_conn.postgres_port, 
+                                      database=postgres_conn.postgres_db)
     cursor = connection.cursor()
 
     # Query to get the last_activity_date for the given athlete_id
@@ -288,36 +297,38 @@ def extract_strava_activities( access_token, athlete_data, config: StravaConfig)
     cursor.close()
     connection.close()
 
+    # Determine the start point for fetching activities: use the later of the last activity date (if it exists) or the partition date.
+    if last_activity_date and last_activity_date > partition_date:
+        effective_after_date = last_activity_date
+    else:
+        effective_after_date = partition_date
+
+    # Convert effective 'after' date to UNIX timestamp
+    start_date_unix = int(effective_after_date.timestamp())
+    
     activities_url = "https://www.strava.com/api/v3/athlete/activities"
-    # partition_date = "2023-01-01"
-    # date = int(datetime.datetime.strptime(config.date, "%Y-%m-%d").timestamp())
+    
     headers = {'Authorization': f'Bearer {access_token}'}
-    # get data up to today: dt = current date
+    
     params = {
         'per_page': 200, 
         'page': 1,
-        # 'before': date
+        'after': start_date_unix
         }
-    
-    # If there is a last_activity_date, set the 'after' parameter to fetch activities after this date
-    if last_activity_date:
-        start_date_unix = int(last_activity_date.timestamp())
-        params['after'] = start_date_unix
-
     activities_response = requests.get(activities_url, headers=headers, params=params).json()
     return activities_response
 
 
 @op
-def get_latest_activity_date( config: StravaConfig):
+def get_latest_activity_date(postgres_conn: PostgresqlDatabaseResource):
     """
       Incrementally query the database for the most recent start_date of stored activities
     """ 
-    connection = psycopg2.connect(user=config.postgres_user,
-                                      password=config.postgres_password,
-                                      host=config.postgres_host,
-                                      port=config.postgres_port, 
-                                      database=config.postgres_db)
+    connection = psycopg2.connect(user=postgres_conn.postgres_user,
+                                      password=postgres_conn.postgres_password,
+                                      host=postgres_conn.postgres_host,
+                                      port=postgres_conn.postgres_port, 
+                                      database=postgres_conn.postgres_db)
     cursor = connection.cursor()
 
     cursor.execute("SELECT MAX(start_date) FROM activities")
@@ -330,13 +341,13 @@ def get_latest_activity_date( config: StravaConfig):
 
 
 @op
-def load_into_database( activities_data, config: StravaConfig):
+def load_into_database( activities_data, postgres_conn: PostgresqlDatabaseResource):
     # Database connection
-    connection = psycopg2.connect(user=config.postgres_user,
-                                      password=config.postgres_password,
-                                      host=config.postgres_host,
-                                      port=config.postgres_port, 
-                                      database=config.postgres_db)
+    connection = psycopg2.connect(user=postgres_conn.postgres_user,
+                                      password=postgres_conn.postgres_password,
+                                      host=postgres_conn.postgres_host,
+                                      port=postgres_conn.postgres_port, 
+                                      database=postgres_conn.postgres_db)
     cursor = connection.cursor()
 
     # SQL query to insert data
