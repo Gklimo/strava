@@ -189,6 +189,9 @@ dagster dev
 5. Turn on deployment schedule to start materializing assets
 ![image](https://github.com/Gklimo/strava/assets/84771383/4087e219-4bab-460f-9d78-5ffcaa775f0a)
 
+6. Make use of partitions if any backfills are required either by running a backfill on a job or an asset
+![image](https://github.com/Gklimo/strava/assets/84771383/ca02c9ba-f446-4b5f-97bf-5b4efab274df)
+
 #### Cloud Deployment
 
 Repository deployed to Dagster Cloud: `https://github.com/Gklimo/strava_dagster_cloud`
