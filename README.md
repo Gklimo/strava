@@ -166,8 +166,6 @@ By following these steps, you will have set up CDC in Airbyte, enabling you to r
 
 To run the Dagster project for orchestrating the data pipeline, you will need to set up a dedicated Python environment and install the necessary dependencies. Here's how you can do it:
 
-#### Setting Up the Environment with Conda
-
 1. Create a new Conda environment with Python 3.11:
 ```bash
    conda create -n dagster python=3.11
@@ -185,6 +183,14 @@ pip install -e ".[dev]"
 ```
 dagster dev
 ```
+5. Turn on deployment schedule to start materializing assets
+
+#### Cloud Deployment
+
+Repository deployed to Dagster Cloud: `https://github.com/Gklimo/strava_dagster_cloud`
+Its contents are also cloned in dagster_cloud directory in the current repository.
+
+TODO: Host Airbyte and Postgres database on EC2 instances
 
 ## NEXT STEPS
 Potential future enhancements for the project include scaling up the number of athletes tracked, integrating additional activity types, and developing more sophisticated visualization dashboards to explore new dimensions of the data. And of course deploying all steps in cloud.
