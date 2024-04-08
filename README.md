@@ -81,6 +81,8 @@ Preset is the final piece of our pipeline, turning our rich datasets into action
 ## PROJECT SETUP
 This section will detail the necessary steps to get the pipeline up and running, including setting up the local development environment, deploying the Airbyte connectors, and configuring the dbt models in Snowflake.
 
+### Create .env file with your tokens and database credentials based on .template_env file provided
+
 ### Generating a Strava Refresh Token
 
 To access Strava activities with extended permissions, you'll need to obtain a refresh token with the appropriate scope. Follow these steps to generate your token:
