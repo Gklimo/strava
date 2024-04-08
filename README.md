@@ -22,12 +22,10 @@ This project aims to provide a comprehensive view of athletes' performance by an
 ## SOLUTION ARCHITECTURE
 The pipeline employs a multi-faceted approach, starting with data extraction from the Strava API, followed by a replication into a PostgreSQL database in Docker container. The data is then processed through a series of transformations in Snowflake using dbt, orchestrated by Dagster, and finally visualized using Preset for easy interpretation and insight gathering.
 
-![Solution Architecture Overview](/path/to/solution_architecture_image.png)
-
 ## DIMENSIONAL MODEL
 Our data warehouse is designed with a star schema in mind, optimizing for query performance and simplicity. The dimensions provide context for the activities, such as when (dim_date), where (dim_location), and by whom (dim_athlete) they were performed. The fact tables (fact_activity, fact_monthly_activities_snapshot) record the metrics and measures related to the activities themselves.
 
-![Entity Relationship Diagram](/path/to/erd_image.png)
+![image](https://github.com/Gklimo/strava/assets/84771383/0871d733-8f23-4d03-b45e-ed44b5b4619d)
 
 ## DATA ENGINEERING PIPELINE
 ![image](https://github.com/Gklimo/strava/assets/84771383/4fadb915-f9e0-4ae8-9e39-c3351eb82080)
