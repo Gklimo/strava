@@ -1,4 +1,4 @@
-# Strava Data Engineering Pipeline
+# Strava Data Pipeline
 
 Welcome to the Strava Data Engineering Pipeline project - an advanced data pipeline designed to capture, transform, and analyze Strava athletic activity data for detailed performance analytics.
 
@@ -6,7 +6,7 @@ Welcome to the Strava Data Engineering Pipeline project - an advanced data pipel
 - [1. Project Goals](#project-goals)
 - [2. Solution Architecture](#solution-architecture)
 - [3. Dimensional Model](#dimensional-model)
-- [4. Data Engineering Pipeline](#data-engineering-pipeline)
+- [4. Data Pipeline](#data-pipeline)
   - [4.1. Data Extraction](#data-extraction)
   - [4.2. Change Data Capture with Airbyte](#change-data-capture-with-airbyte)
   - [4.3. Data Transformation with dbt](#data-transformation-with-dbt)
@@ -29,7 +29,7 @@ Our data warehouse is designed with a star schema in mind, optimizing for query 
 
 ![image](https://github.com/Gklimo/strava/assets/84771383/0871d733-8f23-4d03-b45e-ed44b5b4619d)
 
-## DATA ENGINEERING PIPELINE
+## DATA PIPELINE
 
 ### Data Extraction
 The project uses the Strava API to source data on athletic activities and athlete profiles. Utilizing access tokens, it performs incremental extraction based on the `activity_date`, ensuring that each data pull is efficient and up-to-date.
@@ -212,7 +212,11 @@ dagster dev
 ```bash
 pytest analytics_tests
 ```
-#### Cloud Deployment
+## Cloud Deployment
+
+### AWS
+1. Create Postgres database in RDS and set inbound rules for the security group to All TCP and 'My IP' for better security.
+![image](https://github.com/Gklimo/strava/assets/84771383/1bee5bbe-4f5e-49f3-8885-5d6ce29f2422)
 
 Repository deployed to Dagster Cloud: `https://github.com/Gklimo/strava_dagster_cloud`
 Its contents are also cloned in dagster_cloud directory in the current repository.
