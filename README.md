@@ -220,8 +220,12 @@ Environmental variables are defined.
 ![image](https://github.com/Gklimo/strava/assets/84771383/875db83b-9efc-4e43-ac65-85a3ce1889a7)
 
 
-TODO: Host Airbyte and Postgres database on EC2 instances
-TODO: More tests in CI/CD eg. analytics_tests/ and dbt/strava/tests/
+- TODO: Host Airbyte and Postgres database on EC2 instances
+- TODO: More tests in CI/CD eg. analytics_tests/ and dbt/strava/tests/
+
+Desired Architecture:
+![image](https://github.com/Gklimo/strava/assets/84771383/3a563a1e-945c-4bfa-9bf6-d4675a5c3955)
+
 
 ## NEXT STEPS
 Potential future enhancements for the project include scaling up the number of athletes tracked, integrating additional activity types, and developing more sophisticated visualization dashboards to explore new dimensions of the data. 
