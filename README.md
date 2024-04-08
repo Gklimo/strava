@@ -30,6 +30,7 @@ Our data warehouse is designed with a star schema in mind, optimizing for query 
 ![Entity Relationship Diagram](/path/to/erd_image.png)
 
 ## DATA ENGINEERING PIPELINE
+![image](https://github.com/Gklimo/strava/assets/84771383/4fadb915-f9e0-4ae8-9e39-c3351eb82080)
 
 ### Data Extraction
 The project uses the Strava API to source data on athletic activities and athlete profiles. Utilizing access tokens, it performs incremental extraction based on the `activity_date`, ensuring that each data pull is efficient and up-to-date.
@@ -157,10 +158,12 @@ CREATE PUBLICATION airbyte_publication FOR TABLE activities, athletes;
 By following these steps, you will have set up CDC in Airbyte, enabling you to replicate data changes from your PostgreSQL database to the destination of your choice.
 
 7. Set up airbyte source with your postgres database credentials. Set host to `host.docker.internal`. In advanced options select `Read Changes using Write-Ahead Log (CDC)`, set replication slot to `airbyte_slot` and publication to `airbyte_publication`.
+![image](https://github.com/Gklimo/strava/assets/84771383/8c0a108b-112b-4aba-a1d0-d6ec0b9bb599)
 
 8. Set up airbyte destination for snowflake with your snowflake credentials.
 
-9. Create an airbyte connection called `Strava API` from the source and destination you created.
+9. Create an airbyte connection called `Strava API` from the source and destination you created and run sync.
+![image](https://github.com/Gklimo/strava/assets/84771383/c26b0841-546c-462d-a12a-7c9e7966ee18)
 
 ### Running the Dagster Project
 
@@ -183,7 +186,10 @@ pip install -e ".[dev]"
 ```
 dagster dev
 ```
+![image](https://github.com/Gklimo/strava/assets/84771383/b9fc8925-f64f-4cef-929e-3def5cf54aa4)
+
 5. Turn on deployment schedule to start materializing assets
+![image](https://github.com/Gklimo/strava/assets/84771383/4087e219-4bab-460f-9d78-5ffcaa775f0a)
 
 #### Cloud Deployment
 
