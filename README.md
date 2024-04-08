@@ -39,6 +39,7 @@ We utilize Airbyte's Change Data Capture (CDC) capabilities to monitor and recor
 ### Data Transformation with dbt
 In Snowflake, dbt (data build tool) manages the transformation of our raw data into a refined format ready for analysis. It creates staging, dimensional, and fact tables, implementing business logic and ensuring data quality. Our slowly changing dimension for athlete data captures changes over time, preserving historical context.
 ![image](https://github.com/Gklimo/strava/assets/84771383/08aa557e-dfe2-4d0b-b19e-2d4fb546ae26)
+![image](https://github.com/Gklimo/strava/assets/84771383/4b1d9313-2ec9-470b-99e5-006b6fd778cf)
 
 #### Slowly Changing Dimension
 The `dim_athlete` table is an example of a slowly changing dimension, which tracks the history of changes to an athlete's profile, providing insights into their development over time.
