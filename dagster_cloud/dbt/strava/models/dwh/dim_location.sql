@@ -22,7 +22,3 @@ SELECT
 , location_state AS state
 , location_country AS country
 FROM locations
-
--- Define primary key constraint
--- ALTER TABLE dim_location
--- ADD PRIMARY KEY (location_id);

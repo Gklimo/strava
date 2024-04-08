@@ -6,7 +6,7 @@ setup(
     install_requires=[
         "dagster",
         "dagster-cloud",
-        "psycopg2",
+        "psycopg2-binary",  # Use psycopg2-binary to avoid needing libpq.so.5
         "dagster-airbyte",
         "pandas",
         "dagster-dbt",

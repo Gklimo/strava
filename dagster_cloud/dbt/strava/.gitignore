@@ -4,3 +4,4 @@ logs/
 .user.yml
 package-lock.yml
 dagster/analytics.egg-info/
+.env

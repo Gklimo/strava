@@ -3,7 +3,7 @@ WITH date_dimension AS (
         date_day,
         month_start_date,
         month_end_date
-    FROM {{ ref('dim_date') }}  -- Reference to your standardized date dimension table
+    FROM {{ ref('dim_date') }}
 ),
 
 monthly_activities AS (
@@ -14,7 +14,7 @@ monthly_activities AS (
         SUM(a.distance_m) AS total_distance,
         SUM(a.total_elevation_gain) AS total_elevation_gain
     FROM {{ ref('activities') }} a
-    JOIN date_dimension dd ON DATE_TRUNC('month', a.start_date) = dd.date_day  -- Ensure alignment with date dimension
+    JOIN date_dimension dd ON DATE_TRUNC('month', a.start_date) = dd.date_day
     GROUP BY a.athlete_id, dd.month_start_date
 ),
 
@@ -44,7 +44,7 @@ scd_athlete_details AS (
         country,
         valid_from_date,
         valid_to_date
-    FROM {{ ref('dim_athlete') }}  -- Reference to your SCD-enabled athlete dimension table
+    FROM {{ ref('dim_athlete') }}  -- reference to SCD-enabled athlete dimension table
 )
 
 SELECT
