@@ -220,7 +220,7 @@ Environmental variables are defined.
 ![image](https://github.com/Gklimo/strava/assets/84771383/875db83b-9efc-4e43-ac65-85a3ce1889a7)
 
 
-- TODO: Host Airbyte and Postgres database on EC2 instances
+- TODO: Host Airbyte on EC2 instance and Postgres on RDS
 - TODO: More tests in CI/CD eg. analytics_tests/ and dbt/strava/tests/
 
 Desired Architecture:
