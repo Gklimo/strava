@@ -1,13 +1,3 @@
-{{
-  config(
-      materialized="table",
-      meta={
-        "dagster": {
-          "group" : "dbt_dwh"
-        }
-      }
-  )
-}}
 WITH athlete_data AS (
     SELECT
       a.athlete_id
@@ -61,7 +51,3 @@ SELECT
 , CASE WHEN rank = 1 THEN extracted_at ELSE LAG(extracted_at) OVER (PARTITION BY athlete_id ORDER BY extracted_at DESC) END AS valid_from_date
 , CASE WHEN rank = 1 THEN NULL ELSE LEAD(extracted_at) OVER (PARTITION BY athlete_id ORDER BY extracted_at DESC) END AS valid_to_date
 FROM ranked_athletes
-
--- Define primary key constraint
--- ALTER TABLE dim_athlete
--- ADD PRIMARY KEY (athlete_id);
