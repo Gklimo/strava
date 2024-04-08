@@ -198,6 +198,7 @@ Repository deployed to Dagster Cloud: `https://github.com/Gklimo/strava_dagster_
 Its contents are also cloned in dagster_cloud directory in the current repository.
 
 TODO: Host Airbyte and Postgres database on EC2 instances
+TODO: More tests in CI/CD
 
 ## NEXT STEPS
-Potential future enhancements for the project include scaling up the number of athletes tracked, integrating additional activity types, and developing more sophisticated visualization dashboards to explore new dimensions of the data. And of course deploying all steps in cloud.
+Potential future enhancements for the project include scaling up the number of athletes tracked, integrating additional activity types, and developing more sophisticated visualization dashboards to explore new dimensions of the data. 
