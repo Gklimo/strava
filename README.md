@@ -77,7 +77,7 @@ By integrating CI/CD into our workflow, we maintain a robust, agile, and error-r
 *Integration of CI/CD processes into the project is streamlining development and deployment, ensuring code quality and operational continuity.*
 
 ### Data Visualization with Preset
-Preset is the final piece of our pipeline, turning our rich datasets into actionable insights through interactive dashboards. It provides a user-friendly interface to explore the data, with the ability to drill down into specific areas of interest.You can make use of filters to accomodate for the business needs.
+Preset is the final piece of our pipeline, turning our rich datasets into actionable insights through interactive dashboards. It provides a user-friendly interface to explore the data, with the ability to drill down into specific areas of interest. You can make use of filters to accomodate for the business needs.
 ![image](https://github.com/Gklimo/strava/assets/84771383/5ef8cbce-d5db-435f-b309-c226a1431f6c)
 
 ## PROJECT SETUP
