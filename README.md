@@ -115,6 +115,15 @@ The response from the above command will include your refresh_token.
 Store this token securely, as you will use it to authenticate API requests to Strava.
 Remember to keep your Client Secret and Refresh Token private to protect your Strava account's security.
 
+### Manual one-off run
+You can manually ingest data from strava api into your database.
+```bash
+python extract_strava/extract_strava.py
+```
+You can run initial integration tests
+```bash
+pytest extract_strava_tests/
+```
 ### Airbyte CDC Setup Instructions
 
 To enable Change Data Capture (CDC) with Airbyte, follow the steps outlined below:
@@ -196,6 +205,10 @@ dagster dev
 6. Make use of partitions if any backfills are required either by running a backfill on a job or an asset
 ![image](https://github.com/Gklimo/strava/assets/84771383/ca02c9ba-f446-4b5f-97bf-5b4efab274df)
 
+7. Run test_ops.py unit tests
+```bash
+pytest analytics_tests
+```
 #### Cloud Deployment
 
 Repository deployed to Dagster Cloud: `https://github.com/Gklimo/strava_dagster_cloud`
@@ -207,7 +220,7 @@ Environmental variables are defined.
 
 
 TODO: Host Airbyte and Postgres database on EC2 instances
-TODO: More tests in CI/CD
+TODO: More tests in CI/CD eg. analytics_tests/ and dbt/strava/tests/
 
 ## NEXT STEPS
 Potential future enhancements for the project include scaling up the number of athletes tracked, integrating additional activity types, and developing more sophisticated visualization dashboards to explore new dimensions of the data. 
