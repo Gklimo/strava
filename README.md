@@ -54,6 +54,7 @@ Dagster orchestrates the entire pipeline, managing dependencies, scheduling jobs
 
 ### CI/CD Integration
 To ensure high-quality code and seamless integration of new features, this project incorporates Continuous Integration (CI) and Continuous Deployment (CD) practices facilitated by GitHub Actions and Dagster Cloud.
+![image](https://github.com/Gklimo/strava/assets/84771383/83a54bde-4fa8-403f-a689-9e81a00dfa94)
 
 #### Continuous Integration
 Our CI pipeline is designed to automatically trigger a series of checks and tests upon each code commit to the repository. This includes:
@@ -76,7 +77,8 @@ By integrating CI/CD into our workflow, we maintain a robust, agile, and error-r
 *Integration of CI/CD processes into the project is streamlining development and deployment, ensuring code quality and operational continuity.*
 
 ### Data Visualization with Preset
-Preset is the final piece of our pipeline, turning our rich datasets into actionable insights through interactive dashboards. It provides a user-friendly interface to explore the data, with the ability to drill down into specific areas of interest.
+Preset is the final piece of our pipeline, turning our rich datasets into actionable insights through interactive dashboards. It provides a user-friendly interface to explore the data, with the ability to drill down into specific areas of interest.You can make use of filters to accomodate for the business needs.
+![image](https://github.com/Gklimo/strava/assets/84771383/5ef8cbce-d5db-435f-b309-c226a1431f6c)
 
 ## PROJECT SETUP
 This section will detail the necessary steps to get the pipeline up and running, including setting up the local development environment, deploying the Airbyte connectors, and configuring the dbt models in Snowflake.
@@ -197,6 +199,11 @@ dagster dev
 
 Repository deployed to Dagster Cloud: `https://github.com/Gklimo/strava_dagster_cloud`
 Its contents are also cloned in dagster_cloud directory in the current repository.
+Environmental variables are defined.
+![image](https://github.com/Gklimo/strava/assets/84771383/85d4c166-7562-4df9-b825-9ac933b30d74)
+
+![image](https://github.com/Gklimo/strava/assets/84771383/875db83b-9efc-4e43-ac65-85a3ce1889a7)
+
 
 TODO: Host Airbyte and Postgres database on EC2 instances
 TODO: More tests in CI/CD
