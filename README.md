@@ -1,5 +1,7 @@
 # Strava Data Pipeline
 
+![image](https://github.com/Gklimo/strava/assets/84771383/b490e090-86a7-42e6-b6c3-a7caeb721196)
+
 Welcome to the Strava Data Engineering Pipeline project - an advanced data pipeline designed to capture, transform, and analyze Strava athletic activity data for detailed performance analytics.
 
 ## TABLE OF CONTENTS
