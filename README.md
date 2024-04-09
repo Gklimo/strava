@@ -61,6 +61,8 @@ The `bi_analysis` table is specifically structured to support the Preset dashboa
 ### Orchestration with Dagster
 Dagster orchestrates the entire pipeline, managing dependencies, scheduling jobs, and ensuring data freshness. It utilizes partitions to enhance performance, making data processing more efficient. Dagster orchestrates Strava API asset to refresh data in Postgres database, airbyte asset to ingest into Snoflake, and dbt asset for transormations. Dagster has freshness and automaterialization policies set up.
 
+![image](https://github.com/Gklimo/strava/assets/84771383/6154e32c-9af9-4e0b-b26c-61138413c339)
+
 ![image](https://github.com/Gklimo/strava/assets/84771383/2e3b63e0-c11c-42d2-ba5d-b90b1ecfac03)
 
 ![image](https://github.com/Gklimo/strava/assets/84771383/4b7e424f-5806-4bcb-a2d3-4df8ad866230)
