@@ -1,3 +1,4 @@
+{{ config(materialized='view') }}
 SELECT 
   fact_activity.*
 , dim_location.city AS activity_city
