@@ -22,7 +22,6 @@ Welcome to the Strava Data Engineering Pipeline project - an advanced data pipel
 - [6. Cloud Deployment](#cloud-deployment)
   - [6.1. AWS](#aws)
 - [7. Next Steps](#next-steps)
-- [8. Acknowledgements](#acknowledgements)
 
 ## PROJECT GOALS
 This project aims to provide a comprehensive view of athletes' performance by analyzing Strava activity data. By setting up a sophisticated ELT (Extract, Load, Transform) pipeline, we can track key performance indicators over time, compare activity types, and delve into the data on a per-athlete basis. The geospatial visualization of activities further allows us to uncover patterns and trends related to locations and movements.
