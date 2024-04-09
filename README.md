@@ -24,7 +24,7 @@ Welcome to the Strava Data Engineering Pipeline project - an advanced data pipel
 - [7. Next Steps](#next-steps)
 
 ## PROJECT GOALS
-This project aims to provide a comprehensive view of athletes' performance by analyzing Strava activity data. By setting up a sophisticated ELT (Extract, Load, Transform) pipeline, we can track key performance indicators over time, compare activity types, and delve into the data on a per-athlete basis. The geospatial visualization of activities further allows us to uncover patterns and trends related to locations and movements.
+This project aims to provide a comprehensive view of athletes' performance by analyzing Strava activity data. By setting up a sophisticated ELT (Extract, Load, Transform) pipeline, we can track key performance indicators over time, compare activity types, and delve into the data on a per-athlete basis. The geospatial visualization of activities further allows us to uncover patterns and trends related to locations and movements. For the scope of this project we used data from 2 athletes.
 
 ## SOLUTION ARCHITECTURE
 The pipeline employs a multi-faceted approach, starting with data extraction from the Strava API into a Postgres database on RDS. Airbyte is then ingesting that data into Snowflake with CDC. It is processed through a series of DBT transformations. The whole pipeline is deployed on Dagster Cloud. Dagster orchestrates Strava API asset to refreshes data in Postgres database, airbyte asset to ingest into Snoflake, and dbt asset for transormations. Dagster has freshness and automaterialization policies set up. Finally, the data is visualized with Preset for easy interpretation and insight gathering.
@@ -192,9 +192,6 @@ In the terminal of your local machine run:
 
 In web browser you can set up Airbyte connection at `localhost:8000`
 
-- TODO: More tests in CI/CD eg. analytics_tests/ and dbt/strava/tests/
-- TODO: More restrictive security group inbound rules for dagster and airbyte
-
 ### Airbyte CDC Setup Instructions
 
 To enable Change Data Capture (CDC) with Airbyte, follow the steps outlined below:
@@ -267,3 +264,6 @@ pytest analytics_tests
 
 ## NEXT STEPS
 Potential future enhancements for the project include scaling up the number of athletes tracked, integrating additional activity types, and developing more sophisticated visualization dashboards to explore new dimensions of the data. 
+
+- TODO: More tests in CI/CD eg. analytics_tests/ and dbt/strava/tests/
+- TODO: More restrictive security group inbound rules for dagster and airbyte
