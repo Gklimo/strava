@@ -17,7 +17,7 @@ Welcome to the Strava Data Engineering Pipeline project - an advanced data pipel
   - [5.2. Manual Run](#manual-run)
   - [5.3. Airbyte CDC Setup Instructions](#airbyte-cdc-setup-instructions)
   - [5.4. Manual Run](#manual-run)
-  - [5.5. Running Dagster Project Locally](#running-dagster-project-locally)
+  - [5.5. Dagster](#rdagster)
   - [5.6. Manual Run](#manual-run)
 - [6. Cloud Deployment](#cloud-deployment)
   - [6.1. AWS](#aws)
@@ -134,94 +134,8 @@ You can run initial integration tests
 ```bash
 pytest extract_strava_tests/
 ```
-### Airbyte CDC Setup Instructions
-
-To enable Change Data Capture (CDC) with Airbyte, follow the steps outlined below:
-
-#### Install Airbyte
-1. Download Airbyte version 0.50.44 from the [Airbyte GitHub releases page](https://github.com/airbytehq/airbyte/releases?page=3).
-2. Unzip the downloaded file in your desired location.
-
-#### Configure PostgreSQL for CDC
-1. Grant the necessary permissions to the `postgres` user to allow for replication:
-```sql
-ALTER USER postgres REPLICATION;
-```
-2. Execute a bash shell on your running PostgreSQL container:
-```bash   
-docker exec -it <container_id> /bin/bash
-```
-3. Navigate to the PostgreSQL data directory:
-```bash
-cd /var/lib/postgresql/data
-```
-4. Append configuration settings for logical replication to the postgresql.conf file:
-```bash
-echo '# Replication
-wal_level = logical
-max_wal_senders = 1
-max_replication_slots = 1
-' >> postgresql.conf
-cat postgresql.conf
-exit
-```
-5. Restart docker 
-```bash
-docker restart <container_id>
-```
-6. Set up Replication Slots and Publications in PostgreSQL
-```bash
-SELECT pg_create_logical_replication_slot('airbyte_slot', 'pgoutput');
-ALTER TABLE activities REPLICA IDENTITY DEFAULT;
-ALTER TABLE athletes REPLICA IDENTITY DEFAULT;
-CREATE PUBLICATION airbyte_publication FOR TABLE activities, athletes;
-```
-By following these steps, you will have set up CDC in Airbyte, enabling you to replicate data changes from your PostgreSQL database to the destination of your choice.
-
-7. Set up airbyte source with your postgres database credentials. For local deployment set host to `host.docker.internal` and for RDS use the endpoint as the host and password from secrets manager. In advanced options select `Read Changes using Write-Ahead Log (CDC)`, set replication slot to `airbyte_slot` and publication to `airbyte_publication`.
-![image](https://github.com/Gklimo/strava/assets/84771383/8c0a108b-112b-4aba-a1d0-d6ec0b9bb599)
-
-8. Set up airbyte destination for snowflake with your snowflake credentials.
-
-9. Create an airbyte connection called `RDS Postgres → Snowflake` from the source and destination you created and run sync.
-![image](https://github.com/Gklimo/strava/assets/84771383/4ae7d1fa-5f83-4bb7-b93e-81498cf90c21)
-
-### Running Dagster Project Locally
-
-To run the Dagster project for orchestrating the data pipeline, you will need to set up a dedicated Python environment and install the necessary dependencies. Here's how you can do it:
-
-1. Create a new Conda environment with Python 3.11:
-```bash
-   conda create -n dagster python=3.11
-```
-2. Activate the newly created environment:
-```bash
-conda activate dagster
-```
-3. Install dagster and project dependencies
-```bash
-pip install dagster==1.6.8
-pip install -e ".[dev]"
-```
-4. CD into dagster project directory and run orchestration
-```
-dagster dev
-```
-![image](https://github.com/Gklimo/strava/assets/84771383/b9fc8925-f64f-4cef-929e-3def5cf54aa4)
-
-5. Turn on deployment schedule to start materializing assets
-![image](https://github.com/Gklimo/strava/assets/84771383/4087e219-4bab-460f-9d78-5ffcaa775f0a)
-
-6. Make use of partitions if any backfills are required either by running a backfill on a job or an asset
-![image](https://github.com/Gklimo/strava/assets/84771383/ca02c9ba-f446-4b5f-97bf-5b4efab274df)
-
-7. Run test_ops.py unit tests
-```bash
-pytest analytics_tests
-```
-## Cloud Deployment
-
 ### AWS
+
 1. Create Postgres database in RDS. Select 'Manage master credentials in AWS secrets manager', the postgres user password will be available under 'Retrieve Credentials' in Secrets Manager service. Set inbound rules for the security group to 'Custom TCP' and 'My IP' to only allow traffic from your IP address. Create rules for port 5432 (pgadmin), 8000 (airbyte), 22 (SSH) dagster cloud (), etc.
 ![image](https://github.com/Gklimo/strava/assets/84771383/285ac44a-5043-41fa-8ebb-948bd30cbcdd)
 
@@ -291,6 +205,75 @@ Environmental variables are defined.
 Desired Architecture:
 ![image](https://github.com/Gklimo/strava/assets/84771383/3a563a1e-945c-4bfa-9bf6-d4675a5c3955)
 
+### Airbyte CDC Setup Instructions
+
+To enable Change Data Capture (CDC) with Airbyte, follow the steps outlined below:
+
+#### Install Airbyte
+1. Download Airbyte version 0.50.44 from the [Airbyte GitHub releases page](https://github.com/airbytehq/airbyte/releases?page=3).
+2. Unzip the downloaded file in your desired location.
+
+#### Configure PostgreSQL for CDC
+1. Grant the necessary permissions to the `postgres` user to allow for replication:
+```sql
+ALTER USER postgres REPLICATION;
+```
+2. Execute a bash shell on your running PostgreSQL container:
+```bash   
+docker exec -it <container_id> /bin/bash
+```
+3. Navigate to the PostgreSQL data directory:
+```bash
+cd /var/lib/postgresql/data
+```
+4. Append configuration settings for logical replication to the postgresql.conf file:
+```bash
+echo '# Replication
+wal_level = logical
+max_wal_senders = 1
+max_replication_slots = 1
+' >> postgresql.conf
+cat postgresql.conf
+exit
+```
+5. Restart docker 
+```bash
+docker restart <container_id>
+```
+6. Set up Replication Slots and Publications in PostgreSQL
+```bash
+SELECT pg_create_logical_replication_slot('airbyte_slot', 'pgoutput');
+ALTER TABLE activities REPLICA IDENTITY DEFAULT;
+ALTER TABLE athletes REPLICA IDENTITY DEFAULT;
+CREATE PUBLICATION airbyte_publication FOR TABLE activities, athletes;
+```
+By following these steps, you will have set up CDC in Airbyte, enabling you to replicate data changes from your PostgreSQL database to the destination of your choice.
+
+7. Set up airbyte source with your postgres database credentials. For local deployment set host to `host.docker.internal` and for RDS use the endpoint as the host and password from secrets manager. In advanced options select `Read Changes using Write-Ahead Log (CDC)`, set replication slot to `airbyte_slot` and publication to `airbyte_publication`.
+![image](https://github.com/Gklimo/strava/assets/84771383/8c0a108b-112b-4aba-a1d0-d6ec0b9bb599)
+
+8. Set up airbyte destination for snowflake with your snowflake credentials.
+
+9. Create an airbyte connection called `RDS Postgres → Snowflake` from the source and destination you created and run sync.
+![image](https://github.com/Gklimo/strava/assets/84771383/4ae7d1fa-5f83-4bb7-b93e-81498cf90c21)
+
+### Dagster
+
+1. To run the data pipeline, you will need to set up a dagster cloud account, connect github repository, define and all environmental variables.
+![image](https://github.com/Gklimo/strava/assets/84771383/9e0e5308-8ce9-4f36-9541-97dcd615ad4e)
+
+2. Run backfill for all time
+![image](https://github.com/Gklimo/strava/assets/84771383/2c15f04f-e416-4e6c-b605-f4ff9b2f94dc)
+
+![image](https://github.com/Gklimo/strava/assets/84771383/d9b73417-a272-4e48-98a5-e8bfc55b31b5)
+
+3. Turn on deployment schedule to start materializing assets
+![image](https://github.com/Gklimo/strava/assets/84771383/4087e219-4bab-460f-9d78-5ffcaa775f0a)
+
+7. test_ops.py unit tests
+```bash
+pytest analytics_tests
+```
 
 ## NEXT STEPS
 Potential future enhancements for the project include scaling up the number of athletes tracked, integrating additional activity types, and developing more sophisticated visualization dashboards to explore new dimensions of the data. 
