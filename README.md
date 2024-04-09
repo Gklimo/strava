@@ -17,8 +17,8 @@ Welcome to the Strava Data Engineering Pipeline project - an advanced data pipel
 - [5. Project Setup](#project-setup)
   - [5.1. Strava Refresh Token](#strava-refresh-token)
   - [5.2. Manual Run](#manual-run)
-  - [5.3. AWS & Airbyte](#aws-&-airbyte)
-  - [5.4. Dagster](#rdagster)
+  - [5.3. AWS and Airbyte](#aws-and-airbyte)
+  - [5.4. Dagster](#dagster)
 - [7. Next Steps](#next-steps)
 
 ## PROJECT GOALS
@@ -136,7 +136,7 @@ You can run initial integration tests
 ```bash
 pytest extract_strava_tests/
 ```
-### AWS & Airbyte
+### AWS and Airbyte
 
 #### RDS & EC2 
 Create Postgres database in RDS. Select 'Manage master credentials in AWS secrets manager', the postgres user password will be available under 'Retrieve Credentials' in Secrets Manager service. Set inbound rules for the security group: `SSH` type (port 22) with source `My IP` (only allows SSH connections from your IP address), PostgreSQL type (port 5432), and Custom TCP for Airbyte (port 8000).
