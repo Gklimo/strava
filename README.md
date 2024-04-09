@@ -83,9 +83,6 @@ Our CD pipeline automates the deployment process, allowing for tested and verifi
 
 By integrating CI/CD into our workflow, we maintain a robust, agile, and error-resistant development cycle, ensuring that our data pipeline remains reliable and up-to-date with the latest code enhancements and bug fixes.
 
----
-*Integration of CI/CD processes into the project is streamlining development and deployment, ensuring code quality and operational continuity.*
-
 ### Data Visualization with Preset
 Preset is the final piece of our pipeline, turning our rich datasets into actionable insights through interactive dashboards. It provides a user-friendly interface to explore the data, with the ability to drill down into specific areas of interest. You can make use of filters to accomodate for the business needs.
 ![image](https://github.com/Gklimo/strava/assets/84771383/a1a041dd-2ec2-42ed-82d9-61bad11d37ca)
