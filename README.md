@@ -215,8 +215,34 @@ pytest analytics_tests
 ## Cloud Deployment
 
 ### AWS
-1. Create Postgres database in RDS and set inbound rules for the security group to All TCP and 'My IP' for better security.
+1. Create Postgres database in RDS. Select 'Manage master credentials in AWS secrets manager', the postgres user password will be available under 'Retrieve Credentials' in Secrets Manager service. Set inbound rules for the security group to 'All TCP' and 'My IP' to only allow traffic from your IP address. 
 ![image](https://github.com/Gklimo/strava/assets/84771383/1bee5bbe-4f5e-49f3-8885-5d6ce29f2422)
+3. Launch an EC2 instance, connect to it using SSH.
+```bash
+#!/bin/bash 
+
+# Install Docker
+# Reference: https://docs.airbyte.com/deploying-airbyte/on-aws-ec2
+sudo yum update -y;
+sudo yum install -y docker;
+
+# Start the docker service
+sudo service docker start;
+
+# Add the current user to the docker group
+sudo usermod -a -G docker $USER;
+
+# Manually install docker compose
+# Reference: https://docs.docker.com/compose/install/linux/#install-the-plugin-manually
+DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker};
+mkdir -p $DOCKER_CONFIG/cli-plugins;
+curl -SL https://github.com/docker/compose/releases/download/v2.24.2/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose;
+chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose;
+docker compose version;
+
+# logout of the instance
+exit
+```
 
 Repository deployed to Dagster Cloud: `https://github.com/Gklimo/strava_dagster_cloud`
 Its contents are also cloned in dagster_cloud directory in the current repository.
