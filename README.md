@@ -17,7 +17,7 @@ Welcome to the Strava Data Engineering Pipeline project - an advanced data pipel
   - [5.2. Manual Run](#manual-run)
   - [5.3. Airbyte CDC Setup Instructions](#airbyte-cdc-setup-instructions)
   - [5.4. Manual Run](#manual-run)
-  - [5.5. Running the Dagster Project](#running-the-dagster-project)
+  - [5.5. Running Dagster Project Locally](#running-dagster-project-locally)
   - [5.6. Manual Run](#manual-run)
 - [6. Cloud Deployment](#cloud-deployment)
   - [6.1. AWS](#aws)
@@ -178,7 +178,7 @@ CREATE PUBLICATION airbyte_publication FOR TABLE activities, athletes;
 ```
 By following these steps, you will have set up CDC in Airbyte, enabling you to replicate data changes from your PostgreSQL database to the destination of your choice.
 
-7. Set up airbyte source with your postgres database credentials. Set host to `host.docker.internal`. In advanced options select `Read Changes using Write-Ahead Log (CDC)`, set replication slot to `airbyte_slot` and publication to `airbyte_publication`.
+7. Set up airbyte source with your postgres database credentials. For local deployment set host to `host.docker.internal` and for RDS use the endpoint as the host. In advanced options select `Read Changes using Write-Ahead Log (CDC)`, set replication slot to `airbyte_slot` and publication to `airbyte_publication`.
 ![image](https://github.com/Gklimo/strava/assets/84771383/8c0a108b-112b-4aba-a1d0-d6ec0b9bb599)
 
 8. Set up airbyte destination for snowflake with your snowflake credentials.
@@ -186,7 +186,7 @@ By following these steps, you will have set up CDC in Airbyte, enabling you to r
 9. Create an airbyte connection called `Strava API` from the source and destination you created and run sync.
 ![image](https://github.com/Gklimo/strava/assets/84771383/c26b0841-546c-462d-a12a-7c9e7966ee18)
 
-### Running the Dagster Project
+### Running Dagster Project Locally
 
 To run the Dagster project for orchestrating the data pipeline, you will need to set up a dedicated Python environment and install the necessary dependencies. Here's how you can do it:
 
@@ -225,7 +225,22 @@ pytest analytics_tests
 1. Create Postgres database in RDS. Select 'Manage master credentials in AWS secrets manager', the postgres user password will be available under 'Retrieve Credentials' in Secrets Manager service. Set inbound rules for the security group to 'Custom TCP' and 'My IP' to only allow traffic from your IP address. Create rules for port 5432 (pgadmin), 8000 (airbyte), 22 (SSH) dagster cloud (), etc.
 ![image](https://github.com/Gklimo/strava/assets/84771383/285ac44a-5043-41fa-8ebb-948bd30cbcdd)
 
-3. Launch an EC2 instance,turn off any VPN, connect to the instance using SSH, run the script bellow.
+#### Hosting Airbyte
+Launch an EC2 instance.
+Turn off any VPN.
+To have a fixed IP address:
+Elastic IPs under the "Network and Security section" (left panel in EC2)
+Click on "Allocate Elasitc IP address"
+Amazon's pool of IPv4 addresses
+Allocate
+Select the new IP address > Associate Elastic IP address
+Instance
+Instance: <select_your_instance>
+Associate
+
+Connect to the instance using SSH.
+
+Run the script bellow:
 ```bash
 #!/bin/bash 
 
@@ -259,6 +274,10 @@ wget https://raw.githubusercontent.com/airbytehq/airbyte/master/run-ab-platform.
 chmod +x run-ab-platform.sh;
 ./run-ab-platform.sh -b;
 ```
+In the terminal on your local machine run:
+`ssh -i strava-ec2.pem -L 8000:localhost:8000 -N -f ec2-user@<your_elastic_ip_address>`
+
+In web browser you can set up Airbyte connection at `localhost:8000`
 
 Repository deployed to Dagster Cloud: `https://github.com/Gklimo/strava_dagster_cloud`
 Its contents are also cloned in dagster_cloud directory in the current repository.
