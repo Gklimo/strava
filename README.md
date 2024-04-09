@@ -32,7 +32,7 @@ This data pipeline architecture extracts data from the Strava API, staging it in
 ## DIMENSIONAL MODEL
 Our data warehouse is designed with a star schema in mind, optimizing for query performance and simplicity. The dimensions provide context for the activities, such as when (dim_date), where (dim_location), and by whom (dim_athlete) they were performed. The fact tables (fact_activity, fact_monthly_activities_snapshot) record the metrics and measures related to the activities themselves.
 
-![image](https://github.com/Gklimo/strava/assets/84771383/0871d733-8f23-4d03-b45e-ed44b5b4619d)
+![image](https://github.com/Gklimo/strava/assets/84771383/853a8c43-75ab-40e6-b4ab-a1ed137d77ce)
 
 ## DATA PIPELINE
 
