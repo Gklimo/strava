@@ -40,7 +40,7 @@ Our data warehouse is designed with a star schema in mind, optimizing for query 
 ## DATA PIPELINE
 
 ### Data Extraction
-The project uses the Strava API to source data on athletic activities and athlete profiles. Utilizing access tokens, it performs incremental extraction based on the `activity_date`, ensuring that each data pull is efficient and up-to-date.
+The project uses the Strava API to source data on athletic activities and athlete profiles. Utilizing access tokens, it performs incremental extraction based on the latest between `last_activity_date` from athletes table and dagster partition date, ensuring that each data pull is efficient and up-to-date.
 
 ### Change Data Capture with Airbyte
 We utilize Airbyte's Change Data Capture (CDC) capabilities to monitor and record changes in our PostgreSQL database. This data is then streamed into our Snowflake data warehouse, allowing for real-time data updates and minimizing the load on our source database.
@@ -93,7 +93,7 @@ Preset is the final piece of our pipeline, turning our rich datasets into action
 ![image](https://github.com/Gklimo/strava/assets/84771383/5ef8cbce-d5db-435f-b309-c226a1431f6c)
 
 ## PROJECT SETUP
-This section will detail the necessary steps to get the pipeline up and running, including setting up the local development environment, deploying the Airbyte connectors, and configuring the dbt models in Snowflake.
+This section will detail the necessary steps to get the pipeline up and running, including setting up the local and cloud development environments, deploying the Airbyte connectors, and configuring the dbt models in Snowflake.
 Create .env file with your tokens and database credentials based on .template_env file provided.
 
 ### Strava Refresh Token
@@ -178,12 +178,12 @@ CREATE PUBLICATION airbyte_publication FOR TABLE activities, athletes;
 ```
 By following these steps, you will have set up CDC in Airbyte, enabling you to replicate data changes from your PostgreSQL database to the destination of your choice.
 
-7. Set up airbyte source with your postgres database credentials. For local deployment set host to `host.docker.internal` and for RDS use the endpoint as the host. In advanced options select `Read Changes using Write-Ahead Log (CDC)`, set replication slot to `airbyte_slot` and publication to `airbyte_publication`.
+7. Set up airbyte source with your postgres database credentials. For local deployment set host to `host.docker.internal` and for RDS use the endpoint as the host and password from secrets manager. In advanced options select `Read Changes using Write-Ahead Log (CDC)`, set replication slot to `airbyte_slot` and publication to `airbyte_publication`.
 ![image](https://github.com/Gklimo/strava/assets/84771383/8c0a108b-112b-4aba-a1d0-d6ec0b9bb599)
 
 8. Set up airbyte destination for snowflake with your snowflake credentials.
 
-9. Create an airbyte connection called `Strava API` from the source and destination you created and run sync.
+9. Create an airbyte connection called `RDS Postgres → Snowflake` from the source and destination you created and run sync.
 ![image](https://github.com/Gklimo/strava/assets/84771383/c26b0841-546c-462d-a12a-7c9e7966ee18)
 
 ### Running Dagster Project Locally
@@ -274,7 +274,7 @@ wget https://raw.githubusercontent.com/airbytehq/airbyte/master/run-ab-platform.
 chmod +x run-ab-platform.sh;
 ./run-ab-platform.sh -b;
 ```
-In the terminal on your local machine run:
+In the terminal of your local machine run:
 `ssh -i strava-ec2.pem -L 8000:localhost:8000 -N -f ec2-user@<your_elastic_ip_address>`
 
 In web browser you can set up Airbyte connection at `localhost:8000`
@@ -286,8 +286,6 @@ Environmental variables are defined.
 
 ![image](https://github.com/Gklimo/strava/assets/84771383/875db83b-9efc-4e43-ac65-85a3ce1889a7)
 
-
-- TODO: Host Airbyte on EC2 instance and Postgres on RDS
 - TODO: More tests in CI/CD eg. analytics_tests/ and dbt/strava/tests/
 
 Desired Architecture:
