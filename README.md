@@ -144,6 +144,24 @@ pytest extract_strava_tests/
 Create Postgres database in RDS. Select 'Manage master credentials in AWS secrets manager', the postgres user password will be available under 'Retrieve Credentials' in Secrets Manager service. Set inbound rules for the security group: `SSH` type (port 22) with source `My IP` (only allows SSH connections from your IP address), PostgreSQL type (port 5432), and Custom TCP for Airbyte (port 8000).
 
 ![image](https://github.com/Gklimo/strava/assets/84771383/534af43e-af10-4684-a419-6b323815b4a3)
+Create a New Parameter Group:
+
+Create a New Parameter Group:
+
+In the RDS Dashboard, go to the "Parameter groups" section.
+Click "Create parameter group".
+For "Parameter group family", select the family that corresponds to your PostgreSQL version (e.g., postgres13 for PostgreSQL 13).
+Give it a name that reflects its use case (e.g., cdc-enabled-pg13 for a PostgreSQL 13 family with CDC enabled).
+Provide a description for clarity (e.g., "Parameter group for enabling CDC on PostgreSQL 13").
+Click "Create".
+
+Once the parameter group is created, select it and click on "Parameters".
+Search for and modify the following parameters:
+rds.logical_replication: set its value to 1 to enable.
+max_wal_senders: set to a number sufficient for your setup, typically 1 or more.
+max_replication_slots: set to match the number of max_wal_senders or as required for your setup.
+
+Associate the Parameter Group with Your RDS Instance
 
 #### Hosting Airbyte
 Launch an EC2 instance.
