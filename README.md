@@ -27,8 +27,12 @@ Welcome to the Strava Data Engineering Pipeline project - an advanced data pipel
 This project aims to provide a comprehensive view of athletes' performance by analyzing Strava activity data. By setting up a sophisticated ELT (Extract, Load, Transform) pipeline, we can track key performance indicators over time, compare activity types, and delve into the data on a per-athlete basis. The geospatial visualization of activities further allows us to uncover patterns and trends related to locations and movements.
 
 ## SOLUTION ARCHITECTURE
-The pipeline employs a multi-faceted approach, starting with data extraction from the Strava API into a PostgreSQL database on RDS. Airbyte is then ingesting that data into Snowflake with CDC. It is processed through a series of DBT transformations. The whole pipeline is orchestrated and deployed on Dagster Cloud. Finaaly, the data is visualized on Preset for easy interpretation and insight gathering.
-![image](https://github.com/Gklimo/strava/assets/84771383/3a563a1e-945c-4bfa-9bf6-d4675a5c3955)
+The pipeline employs a multi-faceted approach, starting with data extraction from the Strava API into a Postgres database on RDS. Airbyte is then ingesting that data into Snowflake with CDC. It is processed through a series of DBT transformations. The whole pipeline is deployed on Dagster Cloud. Dagster orchestrates Strava API asset to refreshes data in Postgres database, airbyte asset to ingest into Snoflake, and dbt asset for transormations. Dagster has freshness and automaterialization policies set up. Finally, the data is visualized with Preset for easy interpretation and insight gathering.
+
+![image](https://github.com/Gklimo/strava/assets/84771383/2e3b63e0-c11c-42d2-ba5d-b90b1ecfac03)
+![image](https://github.com/Gklimo/strava/assets/84771383/4b7e424f-5806-4bcb-a2d3-4df8ad866230)
+
+![image](https://github.com/Gklimo/strava/assets/84771383/44fc7423-69a1-46c4-b240-80284b8b1fd9)
 
 ## DIMENSIONAL MODEL
 Our data warehouse is designed with a star schema in mind, optimizing for query performance and simplicity. The dimensions provide context for the activities, such as when (dim_date), where (dim_location), and by whom (dim_athlete) they were performed. The fact tables (fact_activity, fact_monthly_activities_snapshot) record the metrics and measures related to the activities themselves.
