@@ -143,7 +143,7 @@ pytest extract_strava_tests/
 ### AWS and Airbyte
 
 #### RDS & EC2 
-Create Postgres database in RDS. Select 'Manage master credentials in AWS secrets manager', the postgres user password will be available under 'Retrieve Credentials' in Secrets Manager service. This will allow for secure password storage. Set inbound rules for the security group: `SSH` type (port 22) with source `My IP` (only allows SSH connections from your IP address), PostgreSQL type (port 5432), and Custom TCP for Airbyte (port 8000).
+Create Postgres 13 database in RDS. Select 'Manage master credentials in AWS secrets manager', the postgres user password will be available under 'Retrieve Credentials' in Secrets Manager service. This will allow for secure password storage. Set inbound rules for the security group: `SSH` type (port 22) with source `My IP` (only allows SSH connections from your IP address), PostgreSQL type (port 5432), and Custom TCP for Airbyte (port 8000).
 
 ![image](https://github.com/Gklimo/strava/assets/84771383/534af43e-af10-4684-a419-6b323815b4a3)
 
@@ -239,9 +239,10 @@ Scroll down to the "Database options" section.
 Select the new parameter group you created from the "DB parameter group" drop-down menu.
 
 Configure PostgreSQL for CDC
-1. Grant the necessary permissions to the `postgres` user to allow for replication:
+1. Grant the necessary permissions to the `airbyte_cdc_user` user to allow for replication:
 ```sql
-ALTER USER postgres REPLICATION;
+CREATE USER airbyte_cdc_user WITH LOGIN PASSWORD '<your_password>';
+GRANT rds_replication TO airbyte_cdc_user;
 ```
 2. Set up Replication Slots and Publications in PostgreSQL
 ```bash
