@@ -254,9 +254,6 @@ By following these steps, you will have set up CDC in Airbyte, enabling you to r
 
 ![image](https://github.com/Gklimo/strava/assets/84771383/d9b73417-a272-4e48-98a5-e8bfc55b31b5)
 
-3. Turn on deployment schedule to start materializing assets
-![image](https://github.com/Gklimo/strava/assets/84771383/4087e219-4bab-460f-9d78-5ffcaa775f0a)
-
 7. test_ops.py unit tests
 ```bash
 pytest analytics_tests
