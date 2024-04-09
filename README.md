@@ -57,8 +57,8 @@ The `dim_athlete` table is an example of a slowly changing dimension, which trac
 #### Aggregate Fact Table
 Our `fact_monthly_activities_snapshot` table provides a monthly roll-up of activity data, which is critical for trend analysis and monthly performance tracking.
 
-#### BI Analysis Table
-The `bi_analysis` table is specifically structured to support the Preset dashboard visualizations, enabling easy access to pre-calculated metrics for reporting.
+#### BI Analysis Materialized View
+The `bi_analysis` materialized view is specifically structured to support the Preset dashboard visualizations, enabling easy access to pre-calculated metrics for reporting.
 
 ### Orchestration with Dagster
 Dagster orchestrates the entire pipeline, managing dependencies, scheduling jobs, and ensuring data freshness. It utilizes partitions to enhance performance, making data processing more efficient. Dagster orchestrates Strava API asset to refresh data in Postgres database, airbyte asset to ingest into Snoflake, and dbt asset for transormations. Dagster has freshness and automaterialization policies set up.
