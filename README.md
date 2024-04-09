@@ -136,8 +136,8 @@ pytest extract_strava_tests/
 ```
 ### AWS
 
-1. Create Postgres database in RDS. Select 'Manage master credentials in AWS secrets manager', the postgres user password will be available under 'Retrieve Credentials' in Secrets Manager service. Set inbound rules for the security group to 'Custom TCP' and 'My IP' to only allow traffic from your IP address. Create rules for port 5432 (pgadmin), 8000 (airbyte), 22 (SSH) dagster cloud (), etc.
-![image](https://github.com/Gklimo/strava/assets/84771383/285ac44a-5043-41fa-8ebb-948bd30cbcdd)
+1. Create Postgres database in RDS. Select 'Manage master credentials in AWS secrets manager', the postgres user password will be available under 'Retrieve Credentials' in Secrets Manager service. Set inbound rules for the security group: `SSH` type (port 22) with source `My IP` (only allows SSH connections from your IP address), PostgreSQL type (port 5432), and Custom TCP for Airbyte (port 8000).
+![image](https://github.com/Gklimo/strava/assets/84771383/534af43e-af10-4684-a419-6b323815b4a3)
 
 #### Hosting Airbyte
 Launch an EC2 instance.
@@ -193,14 +193,8 @@ In the terminal of your local machine run:
 
 In web browser you can set up Airbyte connection at `localhost:8000`
 
-Repository deployed to Dagster Cloud: `https://github.com/Gklimo/strava_dagster_cloud`
-Its contents are also cloned in dagster_cloud directory in the current repository.
-Environmental variables are defined.
-![image](https://github.com/Gklimo/strava/assets/84771383/85d4c166-7562-4df9-b825-9ac933b30d74)
-
-![image](https://github.com/Gklimo/strava/assets/84771383/875db83b-9efc-4e43-ac65-85a3ce1889a7)
-
 - TODO: More tests in CI/CD eg. analytics_tests/ and dbt/strava/tests/
+- TODO: More restrictive security group inbound rules for dagster and airbyte
 
 Desired Architecture:
 ![image](https://github.com/Gklimo/strava/assets/84771383/3a563a1e-945c-4bfa-9bf6-d4675a5c3955)
