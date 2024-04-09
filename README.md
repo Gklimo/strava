@@ -216,7 +216,7 @@ pytest analytics_tests
 
 ### AWS
 1. Create Postgres database in RDS. Select 'Manage master credentials in AWS secrets manager', the postgres user password will be available under 'Retrieve Credentials' in Secrets Manager service. Set inbound rules for the security group to 'Custom TCP' and 'My IP' to only allow traffic from your IP address. Create rules for port 5432 (pgadmin), 8000 (airbyte), 22 (SSH) dagster cloud (), etc.
-![image](https://github.com/Gklimo/strava/assets/84771383/32c4ef90-7153-416f-930e-f9a29696bda1)
+![image](https://github.com/Gklimo/strava/assets/84771383/285ac44a-5043-41fa-8ebb-948bd30cbcdd)
 
 3. Launch an EC2 instance,turn off any VPN, connect to the instance using SSH, run the script bellow.
 ```bash
