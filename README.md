@@ -1,4 +1,4 @@
-# Strava Data Pipeline
+fd# Strava Data Pipeline
 
 Welcome to the Strava Data Engineering Pipeline project - an advanced data pipeline designed to capture, transform, and analyze Strava athletic activity data for detailed performance analytics.
 
@@ -28,9 +28,8 @@ Welcome to the Strava Data Engineering Pipeline project - an advanced data pipel
 This project aims to provide a comprehensive view of athletes' performance by analyzing Strava activity data. By setting up a sophisticated ELT (Extract, Load, Transform) pipeline, we can track key performance indicators over time, compare activity types, and delve into the data on a per-athlete basis. The geospatial visualization of activities further allows us to uncover patterns and trends related to locations and movements.
 
 ## SOLUTION ARCHITECTURE
-The pipeline employs a multi-faceted approach, starting with data extraction from the Strava API, followed by a replication into a PostgreSQL database in Docker container. The data is then processed through a series of transformations in Snowflake using dbt, orchestrated by Dagster, and finally visualized using Preset for easy interpretation and insight gathering.
-![image](https://github.com/Gklimo/strava/assets/84771383/85acef0c-292b-44a3-8991-91149ca9a48c)
-
+The pipeline employs a multi-faceted approach, starting with data extraction from the Strava API into a PostgreSQL database on RDS. Airbyte is then ingesting that data into Snowflake with CDC. It is processed through a series of DBT transformations. The whole pipeline is orchestrated and deployed on Dagster Cloud. Finaaly, the data is visualized on Preset for easy interpretation and insight gathering.
+![image](https://github.com/Gklimo/strava/assets/84771383/3a563a1e-945c-4bfa-9bf6-d4675a5c3955)
 
 ## DIMENSIONAL MODEL
 Our data warehouse is designed with a star schema in mind, optimizing for query performance and simplicity. The dimensions provide context for the activities, such as when (dim_date), where (dim_location), and by whom (dim_athlete) they were performed. The fact tables (fact_activity, fact_monthly_activities_snapshot) record the metrics and measures related to the activities themselves.
@@ -192,9 +191,6 @@ In web browser you can set up Airbyte connection at `localhost:8000`
 
 - TODO: More tests in CI/CD eg. analytics_tests/ and dbt/strava/tests/
 - TODO: More restrictive security group inbound rules for dagster and airbyte
-
-Desired Architecture:
-![image](https://github.com/Gklimo/strava/assets/84771383/3a563a1e-945c-4bfa-9bf6-d4675a5c3955)
 
 ### Airbyte CDC Setup Instructions
 
