@@ -13,8 +13,11 @@ Welcome to the Strava Data Engineering Pipeline project - an advanced data pipel
   - [4.4. Orchestration with Dagster](#orchestration-with-dagster)
   - [4.5. Data Visualization with Preset](#data-visualization-with-preset)
 - [5. Project Setup](#project-setup)
-- [6. Next Steps](#next-steps)
-- [7. Acknowledgements](#acknowledgements)
+  - [5.1. Strava Refresh Token](#strava-refresh-token)
+- [6. Cloud Deployment](#cloud-deployment)
+  - [6.1. AWS](#aws)
+- [7. Next Steps](#next-steps)
+- [8. Acknowledgements](#acknowledgements)
 
 ## PROJECT GOALS
 This project aims to provide a comprehensive view of athletes' performance by analyzing Strava activity data. By setting up a sophisticated ELT (Extract, Load, Transform) pipeline, we can track key performance indicators over time, compare activity types, and delve into the data on a per-athlete basis. The geospatial visualization of activities further allows us to uncover patterns and trends related to locations and movements.
@@ -86,10 +89,9 @@ Preset is the final piece of our pipeline, turning our rich datasets into action
 
 ## PROJECT SETUP
 This section will detail the necessary steps to get the pipeline up and running, including setting up the local development environment, deploying the Airbyte connectors, and configuring the dbt models in Snowflake.
+Create .env file with your tokens and database credentials based on .template_env file provided.
 
-### Create .env file with your tokens and database credentials based on .template_env file provided
-
-### Generating a Strava Refresh Token
+### Strava Refresh Token
 
 To access Strava activities with extended permissions, you'll need to obtain a refresh token with the appropriate scope. Follow these steps to generate your token:
 
