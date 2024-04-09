@@ -253,13 +253,13 @@ CREATE PUBLICATION airbyte_publication FOR TABLE activities, athletes;
 ```
 By following these steps, you will have set up CDC in Airbyte, enabling you to replicate data changes from your PostgreSQL database to the destination of your choice.
 
-7. Set up airbyte source with your postgres database credentials. For local deployment set host to `host.docker.internal` and for RDS use the endpoint as the host and password from secrets manager. In advanced options select `Read Changes using Write-Ahead Log (CDC)`, set replication slot to `airbyte_slot` and publication to `airbyte_publication`.
+Set up airbyte source with your postgres database credentials. For local deployment set host to `host.docker.internal` and for RDS use the endpoint as the host and password from secrets manager. In advanced options select `Read Changes using Write-Ahead Log (CDC)`, set replication slot to `airbyte_slot` and publication to `airbyte_publication`.
  
 ![image](https://github.com/Gklimo/strava/assets/84771383/8c0a108b-112b-4aba-a1d0-d6ec0b9bb599)
 
-8. Set up airbyte destination for snowflake with your snowflake credentials.
+Set up airbyte destination for snowflake with your snowflake credentials.
 
-9. Create an airbyte connection called `RDS Postgres → Snowflake` from the source and destination you created and run sync.
+Create an airbyte connection called `RDS Postgres → Snowflake` from the source and destination you created and run sync.
 
 ![image](https://github.com/Gklimo/strava/assets/84771383/4ae7d1fa-5f83-4bb7-b93e-81498cf90c21)
 
