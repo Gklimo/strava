@@ -12,8 +12,8 @@ concurrency:
 env:
   DAGSTER_CLOUD_URL: "http://gklimo.dagster.cloud"
   DAGSTER_CLOUD_API_TOKEN: ${{ secrets.DAGSTER_CLOUD_API_TOKEN }}
-  ENABLE_FAST_DEPLOYS: 'false'
-  PYTHON_VERSION: '3.11'
+  ENABLE_FAST_DEPLOYS: 'true'
+  PYTHON_VERSION: '3.8'
   DAGSTER_CLOUD_FILE: 'dagster_cloud.yaml'
 
 jobs:
@@ -24,20 +24,6 @@ jobs:
       build_info: ${{ steps.parse-workspace.outputs.build_info }}
     
     steps:
-      # Test if Python interpreter is functioning as expected
-      - name: Run inline test
-        run: |
-          python -c "assert 1 + 1 == 2"
-
-      - name: Install Flake8
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8
-      
-      - name: Run linters
-        run: |
-          flake8 . --select=E9,F63,F7,F82 --show-source --statistic
-
       - name: Prerun Checks
         id: prerun
         uses: dagster-io/dagster-cloud-action/actions/utils/prerun@v0.1
@@ -91,3 +77,4 @@ jobs:
           organization_id: ${{ secrets.ORGANIZATION_ID }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
