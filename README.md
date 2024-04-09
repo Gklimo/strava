@@ -184,7 +184,7 @@ By following these steps, you will have set up CDC in Airbyte, enabling you to r
 8. Set up airbyte destination for snowflake with your snowflake credentials.
 
 9. Create an airbyte connection called `RDS Postgres → Snowflake` from the source and destination you created and run sync.
-![image](https://github.com/Gklimo/strava/assets/84771383/c26b0841-546c-462d-a12a-7c9e7966ee18)
+![image](https://github.com/Gklimo/strava/assets/84771383/4ae7d1fa-5f83-4bb7-b93e-81498cf90c21)
 
 ### Running Dagster Project Locally
 
