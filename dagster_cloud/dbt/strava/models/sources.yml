@@ -1,9 +1,0 @@
-version: 2
-
-sources:
-  - name: strava
-    database: strava
-    schema: strava
-    tables:
-      - name: athletes
-      - name: activities

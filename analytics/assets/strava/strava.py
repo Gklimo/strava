@@ -7,7 +7,7 @@ from dagster import EnvVar, Config, OpExecutionContext, asset, DailyPartitionsDe
 import datetime
 from analytics.resources import PostgresqlDatabaseResource
 
-strava_daily_partition = DailyPartitionsDefinition(start_date=datetime.datetime(2024, 1, 1))
+strava_daily_partition = DailyPartitionsDefinition(start_date=datetime.datetime(2014, 1, 1))
 
 class StravaConfig(Config):
     client_id: int = EnvVar("client_id")
@@ -123,9 +123,10 @@ def strava_athletes( context: OpExecutionContext, access_token ):
     return athlete_data
 
 @asset(
-    partitions_def=strava_daily_partition, 
+    partitions_def=strava_daily_partition,
+    # every 5 min
+    freshness_policy=FreshnessPolicy(cron_schedule='*/5 * * * *', maximum_lag_minutes=1),
     auto_materialize_policy=AutoMaterializePolicy.eager()
-
 )
 def athletes( context: OpExecutionContext, strava_athletes, strava_activities, postgres_conn: PostgresqlDatabaseResource ):
     context.log.info('Loading athlete data')
@@ -345,33 +346,10 @@ def strava_activities( context: OpExecutionContext, access_token, strava_athlete
     activities_response = requests.get(activities_url, headers=headers, params=params).json()
     return activities_response
 
-
-# @asset(
-#     partitions_def=strava_daily_partition, 
-# )
-# def latest_date(postgres_conn: PostgresqlDatabaseResource):
-#     """
-#       Incrementally query the database for the most recent start_date of stored activities
-#     """ 
-#     connection = psycopg2.connect(user=postgres_conn.postgres_user,
-#                                       password=postgres_conn.postgres_password,
-#                                       host=postgres_conn.postgres_host,
-#                                       port=postgres_conn.postgres_port, 
-#                                       database=postgres_conn.postgres_db)
-#     cursor = connection.cursor()
-
-#     cursor.execute("SELECT MAX(start_date) FROM activities")
-#     latest_start_date = cursor.fetchone()[0]
-
-#     cursor.close()
-#     connection.close()
-
-#     return latest_start_date
-
-
 @asset(
-    partitions_def=strava_daily_partition, 
-    freshness_policy=FreshnessPolicy(cron_schedule='0 0 * * *', maximum_lag_minutes=1),
+    partitions_def=strava_daily_partition,
+    # every 5 min
+    freshness_policy=FreshnessPolicy(cron_schedule='*/5 * * * *', maximum_lag_minutes=1),
     auto_materialize_policy=AutoMaterializePolicy.eager()
 )
 def activities(context: OpExecutionContext, strava_activities, postgres_conn: PostgresqlDatabaseResource ):

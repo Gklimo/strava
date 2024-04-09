@@ -55,16 +55,3 @@ def run_strava_etl():
     load_activity_2 = load_into_database(activity_data_2)
     load_athlete_2= load_athlete_data(athlete_data_2, activity_data_2)
     printout_2 = print_op(athlete_data_2, activity_data_2)
-
-# @job(config=strava_etl_daily_partition)
-# # athlete 2
-# def run_strava_etl_2():
-#     create_strava_database()
-#     create_athlete_table()
-#     create_activities_table()
-#     access_token_2= get_access_token_2()
-#     athlete_data_2 = extract_athlete_data(access_token_2)
-#     activity_data_2 = extract_strava_activities(access_token_2, athlete_data_2)
-#     load_activity_2 = load_into_database(activity_data_2)
-#     load_athlete_2= load_athlete_data(athlete_data_2, activity_data_2)
-#     printout_2 = print_op(athlete_data_2, activity_data_2)

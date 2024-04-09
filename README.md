@@ -15,22 +15,15 @@ Welcome to the Strava Data Engineering Pipeline project - an advanced data pipel
 - [5. Project Setup](#project-setup)
   - [5.1. Strava Refresh Token](#strava-refresh-token)
   - [5.2. Manual Run](#manual-run)
-  - [5.3. Airbyte CDC Setup Instructions](#airbyte-cdc-setup-instructions)
-  - [5.4. Manual Run](#manual-run)
-  - [5.5. Dagster](#rdagster)
-  - [5.6. Manual Run](#manual-run)
-- [6. Cloud Deployment](#cloud-deployment)
-  - [6.1. AWS](#aws)
+  - [5.3. AWS & Airbyte](#aws-&-airbyte)
+  - [5.4. Dagster](#rdagster)
 - [7. Next Steps](#next-steps)
 
 ## PROJECT GOALS
 This project aims to provide a comprehensive view of athletes' performance by analyzing Strava activity data. By setting up a sophisticated ELT (Extract, Load, Transform) pipeline, we can track key performance indicators over time, compare activity types, and delve into the data on a per-athlete basis. The geospatial visualization of activities further allows us to uncover patterns and trends related to locations and movements. For the scope of this project we used data from 2 athletes.
 
 ## SOLUTION ARCHITECTURE
-The pipeline employs a multi-faceted approach, starting with data extraction from the Strava API into a Postgres database on RDS. Airbyte is then ingesting that data into Snowflake with CDC. It is processed through a series of DBT transformations. The whole pipeline is deployed on Dagster Cloud. Dagster orchestrates Strava API asset to refreshes data in Postgres database, airbyte asset to ingest into Snoflake, and dbt asset for transormations. Dagster has freshness and automaterialization policies set up. Finally, the data is visualized with Preset for easy interpretation and insight gathering.
-
-![image](https://github.com/Gklimo/strava/assets/84771383/2e3b63e0-c11c-42d2-ba5d-b90b1ecfac03)
-![image](https://github.com/Gklimo/strava/assets/84771383/4b7e424f-5806-4bcb-a2d3-4df8ad866230)
+The pipeline employs a multi-faceted approach, starting with data extraction from the Strava API into a Postgres database on RDS. Airbyte is then ingesting that data into Snowflake with CDC. It is processed through a series of DBT transformations. The whole pipeline is deployed on Dagster Cloud. Finally, the data is visualized with Preset for easy interpretation and insight gathering.
 
 ![image](https://github.com/Gklimo/strava/assets/84771383/44fc7423-69a1-46c4-b240-80284b8b1fd9)
 
@@ -49,7 +42,9 @@ We utilize Airbyte's Change Data Capture (CDC) capabilities to monitor and recor
 
 ### Data Transformation with dbt
 In Snowflake, dbt (data build tool) manages the transformation of our raw data into a refined format ready for analysis. It creates staging, dimensional, and fact tables, implementing business logic and ensuring data quality. Our slowly changing dimension for athlete data captures changes over time, preserving historical context.
+
 ![image](https://github.com/Gklimo/strava/assets/84771383/08aa557e-dfe2-4d0b-b19e-2d4fb546ae26)
+
 ![image](https://github.com/Gklimo/strava/assets/84771383/4b1d9313-2ec9-470b-99e5-006b6fd778cf)
 
 #### Slowly Changing Dimension
@@ -62,10 +57,15 @@ Our `fact_monthly_activities_snapshot` table provides a monthly roll-up of activ
 The `bi_analysis` table is specifically structured to support the Preset dashboard visualizations, enabling easy access to pre-calculated metrics for reporting.
 
 ### Orchestration with Dagster
-Dagster orchestrates the entire pipeline, managing dependencies, scheduling jobs, and ensuring data freshness. It utilizes partitions to enhance performance, making data processing more efficient.
+Dagster orchestrates the entire pipeline, managing dependencies, scheduling jobs, and ensuring data freshness. It utilizes partitions to enhance performance, making data processing more efficient. Dagster orchestrates Strava API asset to refresh data in Postgres database, airbyte asset to ingest into Snoflake, and dbt asset for transormations. Dagster has freshness and automaterialization policies set up.
+
+![image](https://github.com/Gklimo/strava/assets/84771383/2e3b63e0-c11c-42d2-ba5d-b90b1ecfac03)
+
+![image](https://github.com/Gklimo/strava/assets/84771383/4b7e424f-5806-4bcb-a2d3-4df8ad866230)
 
 ### CI/CD Integration
 To ensure high-quality code and seamless integration of new features, this project incorporates Continuous Integration (CI) and Continuous Deployment (CD) practices facilitated by GitHub Actions and Dagster Cloud.
+
 ![image](https://github.com/Gklimo/strava/assets/84771383/83a54bde-4fa8-403f-a689-9e81a00dfa94)
 
 #### Continuous Integration
@@ -87,6 +87,7 @@ By integrating CI/CD into our workflow, we maintain a robust, agile, and error-r
 
 ### Data Visualization with Preset
 Preset is the final piece of our pipeline, turning our rich datasets into actionable insights through interactive dashboards. It provides a user-friendly interface to explore the data, with the ability to drill down into specific areas of interest. You can make use of filters to accomodate for the business needs.
+
 ![image](https://github.com/Gklimo/strava/assets/84771383/a1a041dd-2ec2-42ed-82d9-61bad11d37ca)
 
 ![image](https://github.com/Gklimo/strava/assets/84771383/5ef8cbce-d5db-435f-b309-c226a1431f6c)
@@ -133,9 +134,11 @@ You can run initial integration tests
 ```bash
 pytest extract_strava_tests/
 ```
-### AWS
+### AWS & Airbyte
 
-1. Create Postgres database in RDS. Select 'Manage master credentials in AWS secrets manager', the postgres user password will be available under 'Retrieve Credentials' in Secrets Manager service. Set inbound rules for the security group: `SSH` type (port 22) with source `My IP` (only allows SSH connections from your IP address), PostgreSQL type (port 5432), and Custom TCP for Airbyte (port 8000).
+#### RDS & EC2 
+Create Postgres database in RDS. Select 'Manage master credentials in AWS secrets manager', the postgres user password will be available under 'Retrieve Credentials' in Secrets Manager service. Set inbound rules for the security group: `SSH` type (port 22) with source `My IP` (only allows SSH connections from your IP address), PostgreSQL type (port 5432), and Custom TCP for Airbyte (port 8000).
+
 ![image](https://github.com/Gklimo/strava/assets/84771383/534af43e-af10-4684-a419-6b323815b4a3)
 
 #### Hosting Airbyte
@@ -192,27 +195,26 @@ In the terminal of your local machine run:
 
 In web browser you can set up Airbyte connection at `localhost:8000`
 
-### Airbyte CDC Setup Instructions
+#### Airbyte CDC Setup Instructions
 
 To enable Change Data Capture (CDC) with Airbyte, follow the steps outlined below:
 
-#### Install Airbyte
-1. Download Airbyte version 0.50.44 from the [Airbyte GitHub releases page](https://github.com/airbytehq/airbyte/releases?page=3).
-2. Unzip the downloaded file in your desired location.
-
-#### Configure PostgreSQL for CDC
+Configure PostgreSQL for CDC
 1. Grant the necessary permissions to the `postgres` user to allow for replication:
 ```sql
 ALTER USER postgres REPLICATION;
 ```
+
 2. Execute a bash shell on your running PostgreSQL container:
 ```bash   
 docker exec -it <container_id> /bin/bash
 ```
+
 3. Navigate to the PostgreSQL data directory:
 ```bash
 cd /var/lib/postgresql/data
 ```
+
 4. Append configuration settings for logical replication to the postgresql.conf file:
 ```bash
 echo '# Replication
@@ -223,10 +225,12 @@ max_replication_slots = 1
 cat postgresql.conf
 exit
 ```
+
 5. Restart docker 
 ```bash
 docker restart <container_id>
 ```
+
 6. Set up Replication Slots and Publications in PostgreSQL
 ```bash
 SELECT pg_create_logical_replication_slot('airbyte_slot', 'pgoutput');
@@ -237,24 +241,28 @@ CREATE PUBLICATION airbyte_publication FOR TABLE activities, athletes;
 By following these steps, you will have set up CDC in Airbyte, enabling you to replicate data changes from your PostgreSQL database to the destination of your choice.
 
 7. Set up airbyte source with your postgres database credentials. For local deployment set host to `host.docker.internal` and for RDS use the endpoint as the host and password from secrets manager. In advanced options select `Read Changes using Write-Ahead Log (CDC)`, set replication slot to `airbyte_slot` and publication to `airbyte_publication`.
+ 
 ![image](https://github.com/Gklimo/strava/assets/84771383/8c0a108b-112b-4aba-a1d0-d6ec0b9bb599)
 
 8. Set up airbyte destination for snowflake with your snowflake credentials.
 
 9. Create an airbyte connection called `RDS Postgres → Snowflake` from the source and destination you created and run sync.
+
 ![image](https://github.com/Gklimo/strava/assets/84771383/4ae7d1fa-5f83-4bb7-b93e-81498cf90c21)
 
 ### Dagster
 
 1. To run the data pipeline, you will need to set up a dagster cloud account, connect github repository, define and all environmental variables.
+   
 ![image](https://github.com/Gklimo/strava/assets/84771383/9e0e5308-8ce9-4f36-9541-97dcd615ad4e)
 
-2. Run backfill for all time
-![image](https://github.com/Gklimo/strava/assets/84771383/2c15f04f-e416-4e6c-b605-f4ff9b2f94dc)
+2. Backfill data for all time
+
+![image](https://github.com/Gklimo/strava_dagster_cloud/assets/84771383/16c139f9-ca9b-4f85-b9c9-b8dfca30435a)
 
 ![image](https://github.com/Gklimo/strava/assets/84771383/d9b73417-a272-4e48-98a5-e8bfc55b31b5)
 
-7. test_ops.py unit tests
+3. test_ops.py unit tests
 ```bash
 pytest analytics_tests
 ```
@@ -264,3 +272,5 @@ Potential future enhancements for the project include scaling up the number of a
 
 - TODO: More tests in CI/CD eg. analytics_tests/ and dbt/strava/tests/
 - TODO: More restrictive security group inbound rules for dagster and airbyte
+- TODO: Set up QA environment to avoid pushing new code to PROD without proper testing
+- TODO: Create `release` branch which will be used to push new code to production, use `main` only for QA

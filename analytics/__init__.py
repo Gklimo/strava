@@ -3,17 +3,16 @@ from analytics.jobs import run_strava_etl
 from analytics.resources import PostgresqlDatabaseResource
 from analytics.schedules import strava_etl_schedule
 from analytics.assets import strava
-# from analytics.assets.airbyte.airbyte import airbyte_assets
+from analytics.assets.airbyte.airbyte import airbyte_assets
 from analytics.assets.dbt.dbt import dbt_strava, dbt_strava_resource
 
 all_strava_assets = load_assets_from_package_module(strava, group_name='strava' )
 defs = Definitions(
     assets=[*all_strava_assets, 
-            # airbyte_assets,
+            airbyte_assets,
               dbt_strava ],
     jobs=[run_strava_etl],
     schedules=[strava_etl_schedule,
-                # strava_etl_schedule_2
                 ], 
     resources={
         "postgres_conn": PostgresqlDatabaseResource(
