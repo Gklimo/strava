@@ -25,7 +25,7 @@ Welcome to the Strava Data Engineering Pipeline project - an advanced data pipel
 This project aims to provide a comprehensive view of athletes' performance by analyzing Strava activity data. By setting up a sophisticated ELT (Extract, Load, Transform) pipeline, we can track key performance indicators over time, compare activity types, and delve into the data on a per-athlete basis. The geospatial visualization of activities further allows us to uncover patterns and trends related to locations and movements. For the scope of this project we used data from 2 athletes.
 
 ## SOLUTION ARCHITECTURE
-The pipeline employs a multi-faceted approach, starting with data extraction from the Strava API into a Postgres database on RDS. Airbyte is then ingesting that data into Snowflake with CDC. It is processed through a series of DBT transformations. The whole pipeline is deployed on Dagster Cloud. Finally, the data is visualized with Preset for easy interpretation and insight gathering.
+This data pipeline architecture extracts data from the Strava API, staging it in a PostgreSQL instance hosted on AWS RDS. Data synchronization to Snowflake is handled by Airbyte, running on an EC2 instance, employing change data capture for efficient data transfer. Transformations are orchestrated through DBT, with the entire pipeline seamlessly deployed and managed on Dagster Cloud. Visual insights are rendered via Preset to deliver actionable intelligence.
 
 ![image](https://github.com/Gklimo/strava/assets/84771383/44fc7423-69a1-46c4-b240-80284b8b1fd9)
 
