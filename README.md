@@ -1,4 +1,4 @@
-fd# Strava Data Pipeline
+# Strava Data Pipeline
 
 Welcome to the Strava Data Engineering Pipeline project - an advanced data pipeline designed to capture, transform, and analyze Strava athletic activity data for detailed performance analytics.
 
