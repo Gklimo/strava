@@ -14,6 +14,11 @@ Welcome to the Strava Data Engineering Pipeline project - an advanced data pipel
   - [4.5. Data Visualization with Preset](#data-visualization-with-preset)
 - [5. Project Setup](#project-setup)
   - [5.1. Strava Refresh Token](#strava-refresh-token)
+  - [5.2. Manual Run](#manual-run)
+  - [5.3. Airbyte CDC Setup Instructions](#airbyte-cdc-setup-instructions)
+  - [5.4. Manual Run](#manual-run)
+  - [5.5. Running the Dagster Project](#running-the-dagster-project)
+  - [5.6. Manual Run](#manual-run)
 - [6. Cloud Deployment](#cloud-deployment)
   - [6.1. AWS](#aws)
 - [7. Next Steps](#next-steps)
@@ -120,7 +125,7 @@ The response from the above command will include your refresh_token.
 Store this token securely, as you will use it to authenticate API requests to Strava.
 Remember to keep your Client Secret and Refresh Token private to protect your Strava account's security.
 
-### Manual one-off run
+### Manual run
 You can manually ingest data from strava api into your database.
 ```bash
 python extract_strava/extract_strava.py
