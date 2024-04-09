@@ -244,6 +244,14 @@ docker compose version;
 # logout of the instance
 exit
 ```
+Log in again
+```bash
+# Download and run airbyte
+mkdir airbyte && cd airbyte;
+wget https://raw.githubusercontent.com/airbytehq/airbyte/master/run-ab-platform.sh;
+chmod +x run-ab-platform.sh;
+./run-ab-platform.sh -b;
+```
 
 Repository deployed to Dagster Cloud: `https://github.com/Gklimo/strava_dagster_cloud`
 Its contents are also cloned in dagster_cloud directory in the current repository.
