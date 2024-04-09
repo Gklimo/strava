@@ -252,9 +252,9 @@ By following these steps, you will have set up CDC in Airbyte, enabling you to r
 
 ### Dagster
 
-1. To run the data pipeline, you will need to set up a dagster cloud account, connect github repository, define and all environmental variables.
+1. To run the pipeline, you will need to set up a dagster cloud account, connect github repository, define and all environmental variables.
    
-![image](https://github.com/Gklimo/strava/assets/84771383/9e0e5308-8ce9-4f36-9541-97dcd615ad4e)
+![image](https://github.com/Gklimo/strava/assets/84771383/79b65ae2-aaf8-4a2b-8227-b092a05a0417)
 
 2. Backfill data for all time
 
