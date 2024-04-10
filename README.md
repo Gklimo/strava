@@ -236,7 +236,7 @@ With the DB instance selected, click "Modify".
 Change the Parameter Group:
 
 Scroll down to the "Database options" section.
-Select the new parameter group you created from the "DB parameter group" drop-down menu. Save changes and reboot RDS instance.
+Select the new parameter group you created from the "DB parameter group" drop-down menu. Save changes, apply immediately, and reboot RDS instance.
 
 Configure PostgreSQL for CDC
 1. Grant the necessary permissions to the `airbyte_cdc_user` user to allow for replication:
