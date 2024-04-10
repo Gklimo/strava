@@ -124,8 +124,8 @@ def strava_athletes( context: OpExecutionContext, access_token ):
 
 @asset(
     partitions_def=strava_daily_partition,
-    # every 5 min
-    freshness_policy=FreshnessPolicy(cron_schedule='*/5 * * * *', maximum_lag_minutes=1),
+    # daily
+    freshness_policy=FreshnessPolicy(cron_schedule='0 0 * * *', maximum_lag_minutes=1),
     auto_materialize_policy=AutoMaterializePolicy.eager()
 )
 def athletes( context: OpExecutionContext, strava_athletes, strava_activities, postgres_conn: PostgresqlDatabaseResource ):
@@ -346,8 +346,8 @@ def strava_activities( context: OpExecutionContext, access_token, strava_athlete
 
 @asset(
     partitions_def=strava_daily_partition,
-    # every 5 min
-    freshness_policy=FreshnessPolicy(cron_schedule='*/5 * * * *', maximum_lag_minutes=1),
+    # daily
+    freshness_policy=FreshnessPolicy(cron_schedule='0 0 * * *', maximum_lag_minutes=1),
     auto_materialize_policy=AutoMaterializePolicy.eager()
 )
 def activities(context: OpExecutionContext, strava_activities, postgres_conn: PostgresqlDatabaseResource ):

@@ -51,4 +51,4 @@ models:
           freshness_policy:
             maximum_lag_minutes: 5
             # every 5 min
-            cron_schedule: "*/5 * * * *"
+            cron_schedule: "0 0 * * *"
