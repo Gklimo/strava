@@ -2,6 +2,7 @@ import psycopg2
 import requests
 from dagster import op, EnvVar, Config, OpExecutionContext
 from analytics.resources import PostgresqlDatabaseResource
+import datetime
 
 class StravaConfig(Config):
     client_id: int = EnvVar("client_id")
@@ -300,6 +301,10 @@ def extract_strava_activities_full( context: OpExecutionContext, access_token, a
     connection.close()
 
     effective_after_date = last_activity_date
+
+    if effective_after_date is None:
+    # Use the Unix epoch start as a fallback effective_after_date
+        effective_after_date = datetime(1970, 1, 1)
 
     # Convert effective 'after' date to UNIX timestamp
     start_date_unix = int(effective_after_date.timestamp())
