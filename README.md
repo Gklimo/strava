@@ -271,11 +271,15 @@ Create an airbyte connection called `RDS Postgres → Snowflake` from the source
 
 2. Backfill data for all time
 
-![image](https://github.com/Gklimo/strava_dagster_cloud/assets/84771383/16c139f9-ca9b-4f85-b9c9-b8dfca30435a)
+![image](https://github.com/Gklimo/strava/assets/84771383/ea2363b0-ac10-41cc-a2e8-e194dcf0ce60)
 
-![image](https://github.com/Gklimo/strava/assets/84771383/d9b73417-a272-4e48-98a5-e8bfc55b31b5)
+![image](https://github.com/Gklimo/strava/assets/84771383/96fc348a-c5e8-44d7-8416-a1fe754b1e60)
 
-3. test_ops.py unit tests
+3. Turn on automaterialization
+
+![image](https://github.com/Gklimo/strava/assets/84771383/5a59844f-f7c7-4977-a988-d27b43d9ef3d)
+
+4. Unit tests available
 ```bash
 pytest analytics_tests
 ```
@@ -283,7 +287,7 @@ pytest analytics_tests
 ## NEXT STEPS
 Potential future enhancements for the project include scaling up the number of athletes tracked, integrating additional activity types, and developing more sophisticated visualization dashboards to explore new dimensions of the data. 
 
-- TODO: More tests in CI/CD eg. analytics_tests/ and dbt/strava/tests/
-- TODO: More restrictive security group inbound rules for dagster and airbyte
-- TODO: Set up QA environment to avoid pushing new code to PROD without proper testing
-- TODO: Create `release` branch which will be used to push new code to production, use `main` only for QA
+- TODO: Adding more tests in CI/CD eg. analytics_tests/ and dbt/strava/tests/
+- TODO: Having more restrictive security group inbound rules for dagster and airbyte
+- TODO: Setting up QA environment to avoid pushing new code to PROD without proper testing
+- TODO: Creating `release` branch which will be used to push new code to production, using `main` branch only for QA
