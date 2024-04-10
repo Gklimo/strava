@@ -265,7 +265,7 @@ Create an airbyte connection called `RDS Postgres → Snowflake` from the source
 
 ### Dagster
 
-1. To run the pipeline, you will need to set up a dagster cloud account, connect github repository, define and all environmental variables.
+1. To run the pipeline, you will need to set up a dagster cloud account, connect github repository, define all environmental variables.
    
 ![image](https://github.com/Gklimo/strava/assets/84771383/0ffe3ba6-20c4-4956-9081-385802737418)
 
