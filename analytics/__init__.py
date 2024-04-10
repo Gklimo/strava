@@ -1,5 +1,5 @@
 from dagster import Definitions, EnvVar, load_assets_from_package_module
-from analytics.jobs import run_strava_etl
+from analytics.jobs import run_strava_etl, run_strava_etl_full_load
 from analytics.resources import PostgresqlDatabaseResource
 from analytics.schedules import strava_etl_schedule
 from analytics.assets import strava
@@ -11,9 +11,10 @@ defs = Definitions(
     assets=[*all_strava_assets, 
             airbyte_assets,
               dbt_strava ],
-    jobs=[run_strava_etl],
-    schedules=[strava_etl_schedule,
-                ], 
+    jobs=[run_strava_etl,
+          run_strava_etl_full_load
+          ],
+    schedules=[strava_etl_schedule], 
     resources={
         "postgres_conn": PostgresqlDatabaseResource(
             postgres_host=EnvVar("postgres_host"),
