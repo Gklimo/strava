@@ -269,58 +269,10 @@ def get_access_token_2_full( context: OpExecutionContext, config: StravaConfig )
 @op
 def extract_strava_activities_full( context: OpExecutionContext, access_token, athlete_data, postgres_conn: PostgresqlDatabaseResource, config: StravaConfig ):
     context.log.info('Extracting activity data')
-
-    """
-    Fetches Strava activities for a specified athlete that occurred after the athlete's last activity date stored in the database.
-
-    This operation incrementally extracts new activities for an individual athlete, ensuring only activities not previously fetched are retrieved. It uses the 'after' parameter in the Strava API request to filter activities by date, based on the last recorded activity date for the athlete in the database.
-
-    Parameters:
-    - access_token (str): The OAuth token used for authenticating with the Strava API.
-    - athlete_data (dict): A dictionary containing at least the 'id' of the athlete whose activities are to be fetched.
-    - config (StravaConfig): A configuration object containing database connection parameters and possibly other Strava-specific settings.
-
-    Returns:
-    - list: A list of activity data in JSON format returned from the Strava API for the specified athlete, filtered to include only activities after the athlete's last activity date in the database.
-    """
-
-    athlete_id = athlete_data['id']
-    connection = psycopg2.connect(user=postgres_conn.postgres_user,
-                                      password=postgres_conn.postgres_password,
-                                      host=postgres_conn.postgres_host,
-                                      port=postgres_conn.postgres_port, 
-                                      database=postgres_conn.postgres_db)
-    cursor = connection.cursor()
-
-    # Query to get the last_activity_date for the given athlete_id
-    cursor.execute("SELECT last_activity_date FROM athletes WHERE id = %s", (athlete_id,))
-    result = cursor.fetchone()
-    last_activity_date = result[0] if result else None
-
-    cursor.close()
-    connection.close()
-
-    effective_after_date = last_activity_date
-
-    if effective_after_date is None:
-    # Use the Unix epoch start as a fallback effective_after_date
-        effective_after_date = datetime(1970, 1, 1)
-
-    # Convert effective 'after' date to UNIX timestamp
-    start_date_unix = int(effective_after_date.timestamp())
-    
     activities_url = "https://www.strava.com/api/v3/athlete/activities"
-    
     headers = {'Authorization': f'Bearer {access_token}'}
-    
-    params = {
-        'per_page': 200, 
-        'page': 1,
-        'after': start_date_unix
-        }
-    activities_response = requests.get(activities_url, headers=headers, params=params).json()
+    activities_response = requests.get(activities_url, headers=headers).json()
     return activities_response
-
 
 @op
 def get_latest_activity_date(postgres_conn: PostgresqlDatabaseResource):

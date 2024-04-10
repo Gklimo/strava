@@ -320,8 +320,6 @@ def extract_strava_activities( context: OpExecutionContext, access_token, athlet
     headers = {'Authorization': f'Bearer {access_token}'}
     
     params = {
-        'per_page': 200, 
-        'page': 1,
         'after': start_date_unix
         }
     activities_response = requests.get(activities_url, headers=headers, params=params).json()

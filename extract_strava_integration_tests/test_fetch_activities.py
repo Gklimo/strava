@@ -22,8 +22,6 @@ def fetch_strava_activities(access_token, start_date=None):
     activities_url = "https://www.strava.com/api/v3/athlete/activities"
     header = {'Authorization': 'Bearer ' + access_token}
     
-    params = {'per_page': 200, 'page': 1}
-    
     # Convert start_date to Unix timestamp if it's not None
     if start_date:
         start_date_unix = int(start_date.timestamp())

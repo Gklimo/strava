@@ -249,7 +249,6 @@ def fetch_strava_activities(access_token, athlete_id, db_credentials):
 
     activities_url = "https://www.strava.com/api/v3/athlete/activities"
     headers = {'Authorization': f'Bearer {access_token}'}
-    params = {'per_page': 200, 'page': 1}
     
     # If there is a last_activity_date, set the 'after' parameter to fetch activities after this date
     if last_activity_date:
