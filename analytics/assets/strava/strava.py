@@ -7,7 +7,7 @@ from dagster import EnvVar, Config, OpExecutionContext, asset, DailyPartitionsDe
 import datetime
 from analytics.resources import PostgresqlDatabaseResource
 
-strava_daily_partition = DailyPartitionsDefinition(start_date=datetime.datetime(2014, 1, 1))
+strava_daily_partition = DailyPartitionsDefinition(start_date=datetime.datetime(2024, 1, 1))
 
 class StravaConfig(Config):
     client_id: int = EnvVar("client_id")

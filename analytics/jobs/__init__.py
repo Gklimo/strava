@@ -4,7 +4,7 @@ from analytics.ops.strava_full_load import create_strava_database_full, create_a
 from datetime import datetime
 from dagster import daily_partitioned_config
 
-@daily_partitioned_config(start_date=datetime(2014, 1, 1))
+@daily_partitioned_config(start_date=datetime(2024, 1, 1))
 def strava_etl_daily_partition(start: datetime, _end: datetime):
     # Format the start date as a string in 'YYYY-MM-DD' format
     formatted_date = start.strftime("%Y-%m-%d")
