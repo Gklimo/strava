@@ -49,6 +49,6 @@ models:
           auto_materialize_policy:
             type: eager
           freshness_policy:
-            maximum_lag_minutes: 5
-            # every 5 min
+            maximum_lag_minutes: 1440
+            # daily
             cron_schedule: "0 0 * * *"
