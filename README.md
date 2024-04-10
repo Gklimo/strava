@@ -65,9 +65,9 @@ Dagster orchestrates the entire pipeline, managing dependencies, scheduling jobs
 
 ![image](https://github.com/Gklimo/strava/assets/84771383/6154e32c-9af9-4e0b-b26c-61138413c339)
 
-![image](https://github.com/Gklimo/strava/assets/84771383/2e3b63e0-c11c-42d2-ba5d-b90b1ecfac03)
+![image](https://github.com/Gklimo/strava/assets/84771383/70e183ef-ab11-45f0-b961-cd80b798710f)
 
-![image](https://github.com/Gklimo/strava/assets/84771383/4b7e424f-5806-4bcb-a2d3-4df8ad866230)
+![image](https://github.com/Gklimo/strava/assets/84771383/b786ae44-391a-47c1-89a4-903891b6f65b)
 
 ### CI/CD Integration
 To ensure high-quality code and seamless integration of new features, this project incorporates Continuous Integration (CI) and Continuous Deployment (CD) practices facilitated by GitHub Actions and Dagster Cloud.
@@ -267,7 +267,7 @@ Create an airbyte connection called `RDS Postgres → Snowflake` from the source
 
 1. To run the pipeline, you will need to set up a dagster cloud account, connect github repository, define and all environmental variables.
    
-![image](https://github.com/Gklimo/strava/assets/84771383/79b65ae2-aaf8-4a2b-8227-b092a05a0417)
+![image](https://github.com/Gklimo/strava/assets/84771383/0ffe3ba6-20c4-4956-9081-385802737418)
 
 2. Backfill data for all time
 
