@@ -2,7 +2,7 @@ import psycopg2
 import requests
 from dagster import op, EnvVar, Config, OpExecutionContext
 from analytics.resources import PostgresqlDatabaseResource
-import datetime
+from datetime import datetime
 
 class StravaConfig(Config):
     client_id: int = EnvVar("client_id")

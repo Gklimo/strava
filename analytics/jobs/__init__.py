@@ -2,9 +2,7 @@ from dagster import job, daily_partitioned_config
 from analytics.ops.strava import create_strava_database, create_athlete_table, get_access_token, extract_athlete_data, load_athlete_data, create_activities_table, extract_strava_activities, load_into_database, print_op, get_access_token_2
 from analytics.ops.strava_full_load import create_strava_database_full, create_athlete_table_full, get_access_token_full, extract_athlete_data_full, load_athlete_data_full, create_activities_table_full, extract_strava_activities_full, load_into_database_full, print_op_full, get_access_token_2_full
 from datetime import datetime
-
 from dagster import daily_partitioned_config
-from datetime import datetime
 
 @daily_partitioned_config(start_date=datetime(2014, 1, 1))
 def strava_etl_daily_partition(start: datetime, _end: datetime):
