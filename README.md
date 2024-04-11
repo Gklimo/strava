@@ -27,7 +27,7 @@ This project aims to provide a comprehensive view of athletes' performance by an
 ## SOLUTION ARCHITECTURE
 This data pipeline architecture extracts data from the Strava API, staging it in a PostgreSQL instance hosted on AWS RDS. Data synchronization to Snowflake is handled by Airbyte, running on an EC2 instance, employing change data capture for efficient data transfer. Transformations are orchestrated through DBT, with the entire pipeline seamlessly deployed and managed on Dagster Cloud. Visual insights are rendered via Preset to deliver actionable intelligence. Within Snowflake, data is organized across three schemas: 'strava', where Airbyte loads the data; 'raw', containing DBT models with raw data; and 'dwh', which also comprises DBT models designed for analytics and reporting, serving as the reporting warehouse to support insights and decision-making processes. The Strava API source available on Airbyte was not utilized for two key reasons. Firstly, as a community-contributed connector, it lacks the security assurances that come with official, certified connectors. Secondly, this particular source does not support Change Data Capture (CDC), a crucial feature for our real-time data synchronization needs. Consequently, these factors led to the decision against its implementation in our data pipeline.
 
-![image](https://github.com/Gklimo/strava/assets/84771383/44fc7423-69a1-46c4-b240-80284b8b1fd9)
+![image](https://github.com/Gklimo/strava/assets/84771383/e28cad13-69e2-4c93-9d0c-a7a815d70271)
 
 ![image](https://github.com/Gklimo/strava/assets/84771383/80cad6e7-087b-47da-adb5-6223744ec021)
 
