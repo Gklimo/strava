@@ -1,4 +1,4 @@
-# Strava Data Pipeline
+# Strava Performance Analytics Pipeline
 
 ![image](https://github.com/Gklimo/strava/assets/84771383/b490e090-86a7-42e6-b6c3-a7caeb721196)
 
