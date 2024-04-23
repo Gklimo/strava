@@ -1,0 +1,89 @@
+erDiagram
+        DIM_DATE {
+        date date_key PK
+        string day
+        string month
+        int year
+    }
+    DIM_ACTIVITY {
+        string activity_key PK
+        string type
+    }
+    DIM_LOCATION {
+        string location_key PK
+        string name
+        string region
+    }
+    DIM_ATHLETE {
+        string athlete_key PK
+        string name
+        int age
+    }
+    FACT_ACTIVITY {
+        string activity_id PK
+        string activity_key
+        string athlete_key FK
+        string date_key FK
+        string location_key FK
+        string activity_name
+        string activity_type
+        boolean is_manual_input
+        string map_id
+        boolean is_commute
+        boolean is_flagged
+        string gear_id
+        boolean is_private
+        boolean is_indoor_trainer
+        float distance_m
+        float lowest_elevation
+        int pr_count
+        string timezone
+        float highest_elevation
+        float max_speed_ms
+        string upload_id
+        string athlete_id
+        string sport_type
+        datetime start_date
+        float utc_offset
+        string visibility
+        string external_id
+        int kudos_count
+        int moving_time_s
+        int photo_count
+        int average_temp
+        int elapsed_time_s
+        string workout_type
+        int athlete_count
+        float avg_speed_ms
+        int comment_count
+        boolean has_heartrate
+        int max_heartrate
+        float average_cadence
+        datetime start_date_local
+        int achievement_count
+        float average_heartrate
+        int total_photo_count
+        float total_elevation_gain
+        datetime extracted_at
+        float start_latitude
+        float start_longitude
+        float end_latitude
+        float end_longitude
+        string location_id
+        int duration
+        int distance
+    }
+    FACT_MONTHLY_ACTIVITIES_SNAPSHOT {
+        string snapshot_id PK
+        string athlete_key FK
+        string month_key FK
+        int total_distance
+        int total_duration
+    }
+
+    DIM_DATE ||--o{ FACT_ACTIVITY : "has"
+    DIM_ACTIVITY ||--o{ FACT_ACTIVITY : "involves"
+    DIM_LOCATION ||--o{ FACT_ACTIVITY : "occurs at"
+    DIM_ATHLETE ||--o{ FACT_ACTIVITY : "performs"
+    DIM_ATHLETE ||--o{ FACT_MONTHLY_ACTIVITIES_SNAPSHOT : "summarized in"
+    DIM_DATE ||--o{ FACT_MONTHLY_ACTIVITIES_SNAPSHOT : "summarized for"
